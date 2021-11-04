@@ -14,7 +14,7 @@
  */
 
 ThisBuild / organization := "za.co.absa"
-ThisBuild / name         := "spark-partition-sizer"
+ThisBuild / name         := "spark-partition-sizing"
 
 import Dependencies._
 
@@ -24,10 +24,10 @@ ThisBuild / scalaVersion := scala211
 
 lazy val root = (project in file("."))
   .settings(
-    name := "spark-partition-sizer",
+    name := "spark-partition-sizing",
     libraryDependencies ++= dependencies,
     javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint"),
-    assembly / mainClass := Some("za.co.absa.spark_partition_sizer.Application"),
+    assembly / mainClass := Some("za.co.absa.spark_partition_sizing.Application"),
     assembly / test := (Test / test).value,
     mergeStrategy,
     artifact in (Compile, assembly) := {
@@ -35,7 +35,7 @@ lazy val root = (project in file("."))
       art.withClassifier(Some("assembly"))
     },
     addArtifact(artifact in (Compile, assembly), assembly)
-  )
+  ).enablePlugins(AutomateHeaderPlugin)
 
 val mergeStrategy: Def.SettingsDefinition = assembly / assemblyMergeStrategy  := {
   case PathList("META-INF", _) => MergeStrategy.discard
