@@ -1,2 +1,2 @@
-# spark_partition_sizing
+# spark-partition-sizing
 Sizing partitions in Spark
