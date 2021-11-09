@@ -13,10 +13,10 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark-partition-sizing.types
+package za.co.absa.spark_partition_sizing.types
 
 import org.apache.spark.sql.types.DataType
-import za.co.absa.spark-partition-sizing.types._
+import za.co.absa.spark_partition_sizing.types._
 
 case class DataTypeSizes(typeSizes: Map[DataType, ByteSize], averageArraySize: Int) {
   def apply(dataType: DataType): ByteSize = {

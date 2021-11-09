@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark-partition-sizing
+package za.co.absa.spark_partition_sizing
 
 import org.apache.spark.sql.{DataFrame, Dataset, Row}
 import org.apache.spark.sql.functions.spark_partition_id
-import za.co.absa.spark-partition-sizing.types._
+import za.co.absa.spark_partition_sizing.types._
 
 object DataFramePartitioner {
   implicit class DataFrameFunctions(val df: DataFrame) extends AnyVal {

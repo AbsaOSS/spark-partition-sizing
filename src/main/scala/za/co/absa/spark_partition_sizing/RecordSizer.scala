@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark-partition-sizing
+package za.co.absa.spark_partition_sizing
 
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.types._
 
 import scala.util.control.TailCalls.{TailRec, done, tailcall}
-import za.co.absa.spark-partition-sizing.types._
+import za.co.absa.spark_partition_sizing.types._
 
 /**
   * Estimate an average row size in bytes.
