@@ -13,4 +13,24 @@
  * limitations under the License.
  */
 
-ThisBuild / version := "0.1.0-SNAPSHOT"
+package za.co.absa.spark_partition_sizing.types
+
+import org.apache.spark.sql.types.DataType
+import za.co.absa.spark_partition_sizing.types._
+
+case class DataTypeSizes(typeSizes: Map[DataType, ByteSize], averageArraySize: Int) {
+  def apply(dataType: DataType): ByteSize = {
+    typeSizes.getOrElse(dataType, 0)
+  }
+
+  def withDataTypeSize(dataType: DataType, typeSize: ByteSize): DataTypeSizes = {
+    val newMap = typeSizes + (dataType -> typeSize)
+    copy(typeSizes = newMap)
+  }
+}
+
+object DataTypeSizes {
+  final val DefaultDataTypeSizes = new DataTypeSizes(Map.empty, 0) //TODO Issue #7
+}
+
+

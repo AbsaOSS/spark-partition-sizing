@@ -44,3 +44,4 @@ temp*
 dist
 test-output
 build.log
+.bsp
