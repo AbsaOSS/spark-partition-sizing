@@ -1,6 +1,18 @@
 # spark-partition-sizing
 
-Sizing partitions in Spark.
+Library for controlling the size of partitions when writing using Spark.
+
+## Motivation
+Sometimes partitions written by Spark are quite unequal(data skew), which makes further reading potentially problematic and processing inefficient.
+`spark-partition-sizing` aims to reduce this problem by providing a number of utilities for achieving a more balanced partitioning.
+
+## Usage
+
+### Building
+To build the package locally, run:
+```
+sbt clean test
+```
 
 ## Repartitioning
 
