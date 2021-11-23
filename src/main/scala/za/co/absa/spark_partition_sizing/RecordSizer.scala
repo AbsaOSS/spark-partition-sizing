@@ -18,6 +18,7 @@ package za.co.absa.spark_partition_sizing
 
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.types._
+import org.apache.spark.util.SizeEstimator
 
 import scala.util.control.TailCalls.{TailRec, done, tailcall}
 import za.co.absa.spark_partition_sizing.types._
@@ -74,7 +75,7 @@ object RecordSizer {
   }
 
 
-  private def rowSize(row: Row): ByteSize = {
-    ??? //TODO Issue #4
+ private def rowSize(row: Row): ByteSize = {
+    SizeEstimator.estimate(row)
   }
 }
