@@ -33,7 +33,7 @@ class DataFramePartitionerTest extends AnyFunSuite {
     val schema = new StructType()
       .add("not_important", StringType, nullable = true)
     val df = spark.read.schema(schema).parquet("src/test/resources/data/empty")
-    println(df.rdd.getNumPartitions)
+    assertResult(0)(df.rdd.getNumPartitions)
     val result = df.repartitionByPlanSize(Option(1), Option(2))
     assertResult(df)(result)
   }
