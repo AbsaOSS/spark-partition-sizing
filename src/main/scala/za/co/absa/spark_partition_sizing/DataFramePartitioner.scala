@@ -56,26 +56,39 @@ object DataFramePartitioner {
 
     def repartitionByPlanSize(minPartitionSize: Option[ByteSize], maxPartitionSize: Option[ByteSize]): DataFrame = {
 
-      def computeBlockCount(totalByteSize: BigInt, desiredSize: Long, addRemainder: Boolean): Int = {
+      def computeBlockCount(totalByteSize: BigInt, desiredSize: BigInt, addRemainder: Boolean): Int = {
         val int = (totalByteSize / desiredSize).toInt
         val blockCount = int + (if (addRemainder && (totalByteSize % desiredSize != 0)) 1 else 0)
         blockCount max 1
       }
 
+      def changePartitionCount(blockCount: Int, fnc: Int => DataFrame): DataFrame = {
+        val outputDf = fnc(blockCount)
+        outputDf
+      }
+
       df.cacheIfNot()
-      val catalystPlan = df.queryExecution.logical
-      val sizeInBytes = df.sparkSession.sessionState.executePlan(catalystPlan).optimizedPlan.stats.sizeInBytes
 
-      val currentBlockSize = sizeInBytes / df.rdd.getNumPartitions
+      val currentPartionCount = df.rdd.getNumPartitions
 
-      (minPartitionSize, maxPartitionSize) match {
-        case (Some(min), None) if currentBlockSize < min =>
-          df.repartition(computeBlockCount(sizeInBytes, min, addRemainder = false))
-        case (None, Some(max)) if currentBlockSize > max =>
-          df.repartition(computeBlockCount(sizeInBytes, max, addRemainder = true))
-        case (Some(min), Some(max)) if currentBlockSize < min || currentBlockSize > max =>
-          df.repartition(computeBlockCount(sizeInBytes, max, addRemainder = true))
-        case _ => df
+      if (currentPartionCount > 0) {
+        val catalystPlan = df.queryExecution.logical
+        val sizeInBytes = df.sparkSession.sessionState.executePlan(catalystPlan).optimizedPlan.stats.sizeInBytes
+
+        val currentBlockSize = sizeInBytes / df.rdd.getNumPartitions
+
+        (minPartitionSize, maxPartitionSize) match {
+          case (Some(min), None) if currentBlockSize < min =>
+            changePartitionCount(computeBlockCount(min, sizeInBytes, addRemainder = false), df.coalesce)
+          case (None, Some(max)) if currentBlockSize > max =>
+            changePartitionCount(computeBlockCount(max, sizeInBytes, addRemainder = true), df.repartition)
+          case (Some(min), Some(max)) if currentBlockSize < min || currentBlockSize > max =>
+            changePartitionCount(computeBlockCount(max, sizeInBytes, addRemainder = true), df.repartition)
+          case _ => df
+        }
+      } else {
+        // empty dataframe
+        df
       }
     }
   }
