@@ -16,9 +16,8 @@
 
 package za.co.absa.spark_partition_sizing
 
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.{DataFrame, Row, SaveMode, SparkSession, functions}
 import org.apache.spark.sql.types._
-import org.apache.spark.util.SizeEstimator
 
 import scala.util.control.TailCalls.{TailRec, done, tailcall}
 import za.co.absa.spark_partition_sizing.types._
@@ -29,21 +28,25 @@ import za.co.absa.spark_partition_sizing.types._
 object RecordSizer {
   private val zeroByteSize: ByteSize = 0
 
+  private def fieldNames(df: DataFrame) = df.schema.fields.map(_.name).toSeq
+
   def fromSchema(schema: StructType)(implicit dataTypeSizes: DataTypeSizes): ByteSize = {
     structSize(schema, 1, done(zeroByteSize)).result //nullability not taken into account
   }
 
   def fromDataFrameSample(df: DataFrame, sampleSize: Int): ByteSize = {
+    implicit val columnNames: Seq[String] = fieldNames(df)
     val (rowsTotalSize, rowCount) = df.head(sampleSize) //TODO head could be skewed
       .foldLeft(zeroByteSize, 0L){case ((size, count), row) =>
-        (size + rowSize(row), count + 1)
+        (size + RowSizer.rowSize(row), count + 1)
       }
     ceilDiv(rowsTotalSize,  rowCount)
   }
 
   def fromDataFrame(df: DataFrame): ByteSize = {
     import df.sparkSession.implicits._
-    val all = df.map(rowSize)
+    implicit val columnNames: Seq[String] = fieldNames(df)
+    val all = df.map(RowSizer.rowSize)
     ??? //TODO Issue #5
   }
 
@@ -72,10 +75,5 @@ object RecordSizer {
       case array: ArrayType => tailcall(dataTypeSize(array.elementType, dataTypeSizes.averageArraySize * itemCount, totalSoFar))
       case dataType => done(itemCount * dataTypeSizes(dataType) + totalSoFar.result)
     }
-  }
-
-
- private def rowSize(row: Row): ByteSize = {
-    SizeEstimator.estimate(row)
   }
 }
