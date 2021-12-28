@@ -30,6 +30,12 @@ ThisBuild / developers := List(
     name  = "Adrian Olosutean",
     email = "adrian.olosutean@absa.africa",
     url   = url("https://github.com/AdrianOlosutean")
+  ),
+  Developer(
+    id    = "benedeki",
+    name  = "David Benedeki",
+    email = "david.benedeki@absa.africa",
+    url   = url("https://github.com/benedeki")
   )
 )
 
@@ -38,3 +44,13 @@ ThisBuild / description := "Tool setting partitioning for Spark"
 ThisBuild / startYear := Some(2021)
 ThisBuild / licenses += "Apache-2.0" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt")
 
+ThisBuild / pomIncludeRepository := { _ => false }
+ThisBuild / publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value) {
+    Some("snapshots" at s"${nexus}content/repositories/snapshots")
+  } else {
+    Some("releases" at s"${nexus}service/local/staging/deploy/maven2")
+  }
+}
+ThisBuild / publishMavenStyle := true
