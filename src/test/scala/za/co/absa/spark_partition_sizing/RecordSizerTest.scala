@@ -39,8 +39,8 @@ class RecordSizerTest extends AnyFunSuite with SparkTestBase {
     val colNames: immutable.Seq[String] = List("a", "b", "c")
     val df = values.toDF(colNames: _*)
 
-    assert(RowSizer.rowSize(df.first())(colNames) < 120)
-    assert(RowSizer.rowSize(df.take(2).last)(colNames) < 250)
+    assert(RowSizer.rowSize(df.first()) < 120)
+    assert(RowSizer.rowSize(df.take(2).last) < 250)
 
   }
 
@@ -49,8 +49,8 @@ class RecordSizerTest extends AnyFunSuite with SparkTestBase {
     val colNames: immutable.Seq[String] = List("a", "b", "c")
     val df = values.toDF(colNames: _*)
 
-    assert(RowSizer.rowSize(df.first())(colNames) < 150)
-    assert(RowSizer.rowSize(df.take(2).last)(colNames) < 150)
+    assert(RowSizer.rowSize(df.first()) < 150)
+    assert(RowSizer.rowSize(df.take(2).last) < 150)
 
   }
 }

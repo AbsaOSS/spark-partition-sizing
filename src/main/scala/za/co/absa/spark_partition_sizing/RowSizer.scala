@@ -24,20 +24,17 @@ import za.co.absa.spark_partition_sizing.types.ByteSize
 
 object RowSizer {
 
-  def rowSize(row: Row)(implicit fieldNames: Seq[String]): ByteSize = {
-    rowEstimate(row)
+  def rowSize(row: Row): ByteSize = {
+    rowEstimate(row, 0)
   }
 
-  private def rowEstimate(row: Row)(implicit fieldNames: Seq[String]): Long = {
-    row match {
-      case r: GenericRowWithSchema => {
-        val values = r.getValuesMap[AnyRef](fieldNames).values
-        values.map {
-          case struct: GenericRowWithSchema => rowEstimate(struct)(struct.schema.fields.map(_.name))
-          case a => SizeEstimator.estimate(a)
-        }.sum
-      }
-      case _ => SizeEstimator.estimate(row)
+  private def rowEstimate(item: AnyRef, accumulator: ByteSize): ByteSize = {
+    item match {
+      case row: GenericRowWithSchema =>
+        val fieldNames: Seq[String] = row.schema.fields.map(_.name)
+        val values = row.getValuesMap[AnyRef](fieldNames).values
+        values.foldLeft(accumulator) {(acc, item) => rowEstimate(item, acc)}
+      case _ => accumulator + SizeEstimator.estimate(item)
     }
   }
 

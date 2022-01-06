@@ -35,7 +35,6 @@ object RecordSizer {
   }
 
   def fromDataFrameSample(df: DataFrame, sampleSize: Int): ByteSize = {
-    implicit val columnNames: Seq[String] = fieldNames(df)
     val (rowsTotalSize, rowCount) = df.head(sampleSize) //TODO head could be skewed
       .foldLeft(zeroByteSize, 0L){case ((size, count), row) =>
         (size + RowSizer.rowSize(row), count + 1)
@@ -45,7 +44,6 @@ object RecordSizer {
 
   def fromDataFrame(df: DataFrame): ByteSize = {
     import df.sparkSession.implicits._
-    implicit val columnNames: Seq[String] = fieldNames(df)
     val all = df.map(RowSizer.rowSize)
     ??? //TODO Issue #5
   }
