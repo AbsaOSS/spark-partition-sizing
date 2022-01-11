@@ -16,8 +16,7 @@
 
 package za.co.absa.spark_partition_sizing
 
-import org.apache.spark.sql.{DataFrame, Dataset, Row}
-import org.apache.spark.sql.functions.spark_partition_id
+import org.apache.spark.sql.DataFrame
 import za.co.absa.spark_partition_sizing.types._
 
 object DataFramePartitioner {
