@@ -16,21 +16,18 @@
 
 package za.co.absa.spark_partition_sizing
 
-import org.apache.spark.sql.types.{StringType, StructType}
-import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.spark.commons.test.SparkTestBase
 
-class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase{
+import scala.collection.immutable
 
-  import DataFramePartitioner._
+trait DummyDatasets extends SparkTestBase {
+  import spark.implicits._
 
-  test("Empty dataset") {
-    val schema = new StructType()
-      .add("not_important", StringType, nullable = true)
-    val df = spark.read.schema(schema).parquet("src/test/resources/data/empty")
-    assertResult(0)(df.rdd.getNumPartitions)
-    val result = df.repartitionByPlanSize(Option(1), Option(2))
-    assertResult(df)(result)
-  }
+  val simpleDfNames: immutable.Seq[String] = List("a", "b")
+  val nestedDfNames: immutable.Seq[String] = simpleDfNames :+ "c"
+
+  val simpleDf = List((1,"sds"), (5, "asfdbfnfgnfgg")).toDF(simpleDfNames: _*)
+  val arrayDf = List((1,"sds", List()), (5, "asfdbfnfgnfgg", List(4,5,6,7,8))).toDF(nestedDfNames: _*)
+  val structDf = List((1,"sds", (12,"zzzz")), (5, "asfdbfnfgnfgg", (55,""))).toDF(nestedDfNames: _*)
 
 }

@@ -16,21 +16,25 @@
 
 package za.co.absa.spark_partition_sizing
 
-import org.apache.spark.sql.types.{StringType, StructType}
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.spark.commons.test.SparkTestBase
 
-class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase{
+import scala.collection.immutable
 
-  import DataFramePartitioner._
+class RowSizerTest extends AnyFunSuite with DummyDatasets {
 
-  test("Empty dataset") {
-    val schema = new StructType()
-      .add("not_important", StringType, nullable = true)
-    val df = spark.read.schema(schema).parquet("src/test/resources/data/empty")
-    assertResult(0)(df.rdd.getNumPartitions)
-    val result = df.repartitionByPlanSize(Option(1), Option(2))
-    assertResult(df)(result)
+  test("Simple df") {
+    assert(RowSizer.rowSize(simpleDf.first()) < 100)
+    assert(RowSizer.rowSize(simpleDf.take(2).last) < 100)
   }
 
+  test("Array df") {
+    assert(RowSizer.rowSize(arrayDf.first()) < 120)
+    assert(RowSizer.rowSize(arrayDf.take(2).last) < 250)
+  }
+
+  test("struct df") {
+    assert(RowSizer.rowSize(structDf.first()) < 150)
+    assert(RowSizer.rowSize(structDf.take(2).last) < 150)
+  }
 }
