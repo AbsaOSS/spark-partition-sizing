@@ -16,30 +16,11 @@
 ThisBuild / organization := "za.co.absa"
 ThisBuild / name         := "spark-partition-sizing"
 
-import Dependencies._
-
 lazy val scala211 = "2.11.12"
 
 ThisBuild / scalaVersion := scala211
 
-lazy val root = (project in file("."))
-  .settings(
-    name := "spark-partition-sizing",
-    libraryDependencies ++= dependencies,
-    javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint"),
-    assembly / mainClass := Some("za.co.absa.spark_partition_sizing.Application"),
-    assembly / test := (Test / test).value,
-    mergeStrategy,
-    artifact in (Compile, assembly) := {
-      val art = (artifact in (Compile, assembly)).value
-      art.withClassifier(Some("assembly"))
-    },
-    addArtifact(artifact in (Compile, assembly), assembly)
-  ).enablePlugins(AutomateHeaderPlugin)
+import Dependencies._
+libraryDependencies ++= dependencies
 
-val mergeStrategy: Def.SettingsDefinition = assembly / assemblyMergeStrategy  := {
-  case PathList("META-INF", _) => MergeStrategy.discard
-  case "application.conf"      => MergeStrategy.concat
-  case "reference.conf"        => MergeStrategy.concat
-  case _                       => MergeStrategy.first
-}
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
