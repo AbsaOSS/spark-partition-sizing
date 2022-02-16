@@ -1,3 +1,5 @@
+import Dependencies.sparkVersion
+
 /*
  * Copyright 2021 ABSA Group Limited
  *
@@ -17,10 +19,19 @@ ThisBuild / organization := "za.co.absa"
 ThisBuild / name         := "spark-partition-sizing"
 
 lazy val scala211 = "2.11.12"
-
-ThisBuild / scalaVersion := scala211
+lazy val scala212 = "2.12.12"
 
 import Dependencies._
+
+ThisBuild / crossScalaVersions := Seq(scala211, scala212)
+ThisBuild / scalaVersion := scala211
+
+lazy val printSparkScalaVersion = taskKey[Unit]("Print Spark and Scala versions spark-commons is being built for.")
+ThisBuild / printSparkScalaVersion := {
+  val log = streams.value.log
+  log.info(s"Building with Spark ${sparkVersion}, Scala ${scalaVersion.value}")
+}
+
 libraryDependencies ++= dependencies
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value

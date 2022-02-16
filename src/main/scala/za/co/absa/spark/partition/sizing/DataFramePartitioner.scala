@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark_partition_sizing
+package za.co.absa.spark.partition.sizing
 
 import org.apache.spark.sql.DataFrame
-import za.co.absa.spark_partition_sizing.types._
+import za.co.absa.spark.partition.sizing.types._
 
 object DataFramePartitioner {
   implicit class DataFrameFunctions(val df: DataFrame) extends AnyVal {
@@ -68,9 +68,9 @@ object DataFramePartitioner {
 
       df.cacheIfNot()
 
-      val currentPartionCount = df.rdd.getNumPartitions
+      val currentPartitionCount = df.rdd.getNumPartitions
 
-      if (currentPartionCount > 0) {
+      if (currentPartitionCount > 0) {
         val catalystPlan = df.queryExecution.logical
         val sizeInBytes = df.sparkSession.sessionState.executePlan(catalystPlan).optimizedPlan.stats.sizeInBytes
 
