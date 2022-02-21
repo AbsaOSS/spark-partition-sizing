@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark_partition_sizing
+package za.co.absa.spark.partition.sizing
 
 import org.apache.spark.sql.{DataFrame, Row, SaveMode, SparkSession, functions}
 import org.apache.spark.sql.types._
+import za.co.absa.spark.partition.sizing.types.DataTypeSizes
 
 import scala.util.control.TailCalls.{TailRec, done, tailcall}
-import za.co.absa.spark_partition_sizing.types._
+import za.co.absa.spark.partition.sizing.types._
 
 /**
   * Estimate an average row size in bytes.
   */
 object RecordSizer {
   private val zeroByteSize: ByteSize = 0
-
-  private def fieldNames(df: DataFrame) = df.schema.fields.map(_.name).toSeq
 
   def fromSchema(schema: StructType)(implicit dataTypeSizes: DataTypeSizes): ByteSize = {
     structSize(schema, 1, done(zeroByteSize)).result //nullability not taken into account

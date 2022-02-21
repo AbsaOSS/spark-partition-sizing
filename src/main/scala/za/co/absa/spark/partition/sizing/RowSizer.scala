@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark_partition_sizing
+package za.co.absa.spark.partition.sizing
 
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.util.SizeEstimator
-import za.co.absa.spark_partition_sizing.types.ByteSize
+import za.co.absa.spark.partition.sizing.types.ByteSize
 
 
 object RowSizer {
