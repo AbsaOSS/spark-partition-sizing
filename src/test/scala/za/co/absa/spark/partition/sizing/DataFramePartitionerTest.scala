@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark_partition_sizing
+package za.co.absa.spark.partition.sizing
 
 import org.apache.spark.sql.types.{StringType, StructType}
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.spark.commons.test.SparkTestBase
 
-class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase{
+class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
 
   import DataFramePartitioner._
 

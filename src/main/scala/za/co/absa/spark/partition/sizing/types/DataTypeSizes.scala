@@ -14,18 +14,23 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark_partition_sizing
+package za.co.absa.spark.partition.sizing.types
 
-import org.scalatest.funsuite.AnyFunSuite
-import za.co.absa.spark.commons.test.SparkTestBase
+import org.apache.spark.sql.types.DataType
 
-import scala.collection.immutable
+case class DataTypeSizes(typeSizes: Map[DataType, ByteSize], averageArraySize: Int) {
+  def apply(dataType: DataType): ByteSize = {
+    typeSizes.getOrElse(dataType, 0)
+  }
 
-class RecordSizerTest extends AnyFunSuite with DummyDatasets {
-
-  test("test fromDataFrame") {
-    assert(RecordSizer.fromDataFrame(simpleDf) < 80)
-    assert(RecordSizer.fromDataFrame(arrayDf) < 170)
-    assert(RecordSizer.fromDataFrame(structDf) < 140)
+  def withDataTypeSize(dataType: DataType, typeSize: ByteSize): DataTypeSizes = {
+    val newMap = typeSizes + (dataType -> typeSize)
+    copy(typeSizes = newMap)
   }
 }
+
+object DataTypeSizes {
+  final val DefaultDataTypeSizes = new DataTypeSizes(Map.empty, 0) //TODO Issue #7
+}
+
+

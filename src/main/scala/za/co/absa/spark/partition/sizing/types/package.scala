@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark_partition_sizing
+package za.co.absa.spark.partition.sizing
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.spark_partition_id

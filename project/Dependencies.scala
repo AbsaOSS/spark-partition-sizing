@@ -17,21 +17,18 @@ import sbt._
 
 object Dependencies {
 
-  lazy val sparkCore = "org.apache.spark"    %% "spark-core"       % "2.4.7"  % "provided"
-  lazy val sparkSql  = "org.apache.spark"    %% "spark-sql"        % "2.4.7"  % "provided"
-  lazy val sparkCommon="za.co.absa"          %% "spark-commons"    % "0.1.1"  % Test
-  lazy val scalaTest = "org.scalatest"       %% "scalatest"        % "3.2.9"  % Test
-  lazy val scalaMock = "org.scalamock"       %% "scalamock"        % "5.1.0"  % Test
-  lazy val fastTest  = "com.github.mrpowers" %% "spark-fast-tests" % "0.23.0" % Test
+  def sparkVersion: String = sys.props.getOrElse("SPARK_VERSION", "2.4.7")
 
+  lazy val sparkCore = "org.apache.spark"    %% "spark-core"         % sparkVersion  % "provided"
+  lazy val sparkSql  = "org.apache.spark"    %% "spark-sql"          % sparkVersion  % "provided"
+  lazy val sparkCommon="za.co.absa"          %% "spark-commons-test" % "0.2.0"  % Test
+  lazy val scalaTest = "org.scalatest"       %% "scalatest"          % "3.2.9"  % Test
 
   lazy val dependencies: Seq[ModuleID] = Seq(
     sparkCore,
     sparkSql,
     sparkCommon,
-    scalaTest,
-    scalaMock,
-    fastTest
+    scalaTest
   )
 
 }

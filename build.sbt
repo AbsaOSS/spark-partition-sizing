@@ -1,3 +1,5 @@
+import Dependencies.sparkVersion
+
 /*
  * Copyright 2021 ABSA Group Limited
  *
@@ -16,30 +18,20 @@
 ThisBuild / organization := "za.co.absa"
 ThisBuild / name         := "spark-partition-sizing"
 
+lazy val scala211 = "2.11.12"
+lazy val scala212 = "2.12.12"
+
 import Dependencies._
 
-lazy val scala211 = "2.11.12"
-
+ThisBuild / crossScalaVersions := Seq(scala211, scala212)
 ThisBuild / scalaVersion := scala211
 
-lazy val root = (project in file("."))
-  .settings(
-    name := "spark-partition-sizing",
-    libraryDependencies ++= dependencies,
-    javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint"),
-    assembly / mainClass := Some("za.co.absa.spark_partition_sizing.Application"),
-    assembly / test := (Test / test).value,
-    mergeStrategy,
-    artifact in (Compile, assembly) := {
-      val art = (artifact in (Compile, assembly)).value
-      art.withClassifier(Some("assembly"))
-    },
-    addArtifact(artifact in (Compile, assembly), assembly)
-  ).enablePlugins(AutomateHeaderPlugin)
-
-val mergeStrategy: Def.SettingsDefinition = assembly / assemblyMergeStrategy  := {
-  case PathList("META-INF", _) => MergeStrategy.discard
-  case "application.conf"      => MergeStrategy.concat
-  case "reference.conf"        => MergeStrategy.concat
-  case _                       => MergeStrategy.first
+lazy val printSparkScalaVersion = taskKey[Unit]("Print Spark and Scala versions spark-commons is being built for.")
+ThisBuild / printSparkScalaVersion := {
+  val log = streams.value.log
+  log.info(s"Building with Spark ${sparkVersion}, Scala ${scalaVersion.value}")
 }
+
+libraryDependencies ++= dependencies
+
+releasePublishArtifactsAction := PgpKeys.publishSigned.value
