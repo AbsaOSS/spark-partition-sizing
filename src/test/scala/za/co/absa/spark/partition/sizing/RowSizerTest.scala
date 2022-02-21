@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark_partition_sizing
+package za.co.absa.spark.partition.sizing
 
 import org.scalatest.funsuite.AnyFunSuite
-import za.co.absa.spark.commons.test.SparkTestBase
-import za.co.absa.spark.partition.sizing.RowSizer
-
-import scala.collection.immutable
 
 class RowSizerTest extends AnyFunSuite with DummyDatasets {
 

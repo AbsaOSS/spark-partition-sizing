@@ -42,15 +42,17 @@ object DataFramePartitioner {
     }
 
     def repartitionByRecordCount(maxRecordsPerPartition: Long): DataFrame = {
-      //TODO verify max of each partition, it might still break the limit
-      val partitionCountLong = (recordCount / maxRecordsPerPartition) +
-        (if (recordCount % maxRecordsPerPartition == 0) 0 else 1)
-      val partitionCount: Int = partitionCountLong match {
-        case x if x < 1 => 1
-        case x if x > Int.MaxValue => Int.MaxValue
-        case x => x.toInt
+      if (df.count() == 0) df else {
+        //TODO verify max of each partition, it might still break the limit
+        val partitionCountLong = (recordCount / maxRecordsPerPartition) +
+          (if (recordCount % maxRecordsPerPartition == 0) 0 else 1)
+        val partitionCount: Int = partitionCountLong match {
+          case x if x < 1 => 1
+          case x if x > Int.MaxValue => Int.MaxValue
+          case x => x.toInt
+        }
+        df.repartition(partitionCount)
       }
-      df.repartition(partitionCount)
     }
 
     def repartitionByPlanSize(minPartitionSize: Option[ByteSize], maxPartitionSize: Option[ByteSize]): DataFrame = {

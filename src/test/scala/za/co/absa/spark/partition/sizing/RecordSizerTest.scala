@@ -17,7 +17,6 @@
 package za.co.absa.spark.partition.sizing
 
 import org.scalatest.funsuite.AnyFunSuite
-import za.co.absa.spark_partition_sizing.DummyDatasets
 
 class RecordSizerTest extends AnyFunSuite with DummyDatasets {
 
@@ -25,5 +24,13 @@ class RecordSizerTest extends AnyFunSuite with DummyDatasets {
     assert(RecordSizer.fromDataFrame(simpleDf) < 80)
     assert(RecordSizer.fromDataFrame(arrayDf) < 170)
     assert(RecordSizer.fromDataFrame(structDf) < 140)
+  }
+
+  test("test deeper nested dataframe") {
+    val inputDf = spark.read
+      .schema(testCaseSchema)
+      .json(getClass.getResource(nestedFilePath).getPath)
+    assert(RecordSizer.fromDataFrame(inputDf) < 1500)
+    assert(RecordSizer.fromDataFrame(inputDf.drop("array1", "array2")) < 1000)
   }
 }
