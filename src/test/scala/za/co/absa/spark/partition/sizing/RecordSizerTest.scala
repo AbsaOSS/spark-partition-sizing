@@ -17,9 +17,7 @@
 package za.co.absa.spark.partition.sizing
 
 import org.scalatest.funsuite.AnyFunSuite
-import za.co.absa.spark.commons.test.SparkTestBase
-
-import scala.collection.immutable
+import za.co.absa.spark_partition_sizing.DummyDatasets
 
 class RecordSizerTest extends AnyFunSuite with DummyDatasets {
 
