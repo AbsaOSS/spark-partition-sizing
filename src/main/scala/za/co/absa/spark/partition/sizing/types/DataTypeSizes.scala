@@ -16,7 +16,7 @@
 
 package za.co.absa.spark.partition.sizing.types
 
-import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.types._
 
 case class DataTypeSizes(typeSizes: Map[DataType, ByteSize], averageArraySize: Int) {
   def apply(dataType: DataType): ByteSize = {
@@ -30,7 +30,11 @@ case class DataTypeSizes(typeSizes: Map[DataType, ByteSize], averageArraySize: I
 }
 
 object DataTypeSizes {
-  final val DefaultDataTypeSizes = new DataTypeSizes(Map.empty, 0) //TODO Issue #7
+  private val dataTypeSizes: Map[DataType, ByteSize] = Map(ByteType -> 1L, BooleanType -> 1L,
+    ShortType -> 2L, IntegerType -> 4L, LongType -> 8L,
+    FloatType -> 4L, DoubleType -> 8L)
+
+  final val DefaultDataTypeSizes = new DataTypeSizes(dataTypeSizes, 1)
 }
 
 

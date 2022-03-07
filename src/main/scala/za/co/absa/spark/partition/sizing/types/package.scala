@@ -24,12 +24,13 @@ package object types {
 
   case class PartitionRecordCount(partitionId: Int, recordCount: Long)
 
-  def dataFrameParitionRecordCount(df: DataFrame): Array[PartitionRecordCount] = {
+  def dataFramePartitionRecordCount(df: DataFrame): Array[PartitionRecordCount] = {
     // this function was moved out from `DataFrameFunctions` because `PartitionRecordCount` cannot be used withing an
     // implicit class extending `AnyVal`
     import df.sqlContext.implicits._
-    df.groupBy(spark_partition_id)
+    df.groupBy(spark_partition_id.as("partitionId"))
       .count()
+      .withColumnRenamed("count", "recordCount")
       .as[PartitionRecordCount]
       .collect()
   }

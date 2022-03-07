@@ -17,7 +17,7 @@
 package za.co.absa.spark.partition.sizing
 
 import org.apache.spark.sql.functions.{avg, col}
-import org.apache.spark.sql.{DataFrame, Row, SaveMode, SparkSession, functions}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types._
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes
 
@@ -45,8 +45,13 @@ object RecordSizer {
   def fromDataFrame(df: DataFrame): ByteSize = {
     import df.sparkSession.implicits._
 
-    val dfWithAvg: DataFrame = df.map(RowSizer.rowSize).agg(avg(col("value")))
-    dfWithAvg.collect().last.get(0).asInstanceOf[Number].longValue()
+    if(df.isEmpty) {
+      0L
+    } else {
+      val dfWithAvg: DataFrame = df.map(RowSizer.rowSize).agg(avg(col("value")))
+      dfWithAvg.collect().last.get(0).asInstanceOf[Number].longValue()
+    }
+
   }
 
   def fromDirectorySize(path: String): ByteSize = {

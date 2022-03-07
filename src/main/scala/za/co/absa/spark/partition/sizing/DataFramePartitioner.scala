@@ -32,7 +32,7 @@ object DataFramePartitioner {
     }
 
     def partitionsRecordCount: Map[Int, Long] = {
-      dataFrameParitionRecordCount(df)
+      dataFramePartitionRecordCount(df)
         .map(x => (x.partitionId, x.recordCount))
         .toMap
     }
