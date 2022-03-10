@@ -16,68 +16,16 @@
 
 package za.co.absa.spark.partition.sizing
 
-import org.apache.spark.sql.functions.{avg, col}
 import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.types._
-import za.co.absa.spark.partition.sizing.types.DataTypeSizes
-
-import scala.util.control.TailCalls.{TailRec, done, tailcall}
 import za.co.absa.spark.partition.sizing.types._
 
 /**
   * Estimate an average row size in bytes.
   */
-object RecordSizer {
-  private val zeroByteSize: ByteSize = 0
+trait RecordSizer {
+  def performSizing(df: DataFrame): ByteSize
+}
 
-  def fromSchema(schema: StructType)(implicit dataTypeSizes: DataTypeSizes): ByteSize = {
-    structSize(schema, 1, done(zeroByteSize)).result //nullability not taken into account
-  }
-
-  def fromDataFrameSample(df: DataFrame, sampleSize: Int): ByteSize = {
-    val (rowsTotalSize, rowCount) = df.head(sampleSize) //TODO head could be skewed
-      .foldLeft(zeroByteSize, 0L){case ((size, count), row) =>
-        (size + RowSizer.rowSize(row), count + 1)
-      }
-    ceilDiv(rowsTotalSize,  rowCount)
-  }
-
-  def fromDataFrame(df: DataFrame): ByteSize = {
-    import df.sparkSession.implicits._
-
-    if(df.isEmpty) {
-      0L
-    } else {
-      val dfWithAvg: DataFrame = df.map(RowSizer.rowSize).agg(avg(col("value")))
-      dfWithAvg.collect().last.get(0).asInstanceOf[Number].longValue()
-    }
-
-  }
-
-  def fromDirectorySize(path: String): ByteSize = {
-    ??? //TODO Issue #6
-  }
-
-  private def ceilDiv(dividend: ByteSize, divisor: Long): ByteSize = {
-    dividend / divisor + (dividend % divisor match {
-      case 0          => 0
-      case x if x > 0 => 1
-      case _          => -1
-    })
-  }
-
-  private def structSize(struct: StructType, itemCount: Int, totalSoFar: TailRec[ByteSize])
-                        (implicit dataTypeSizes: DataTypeSizes): TailRec[ByteSize] = {
-    struct.fields.foldLeft(totalSoFar)((runningTotal, structField) =>
-      tailcall(dataTypeSize(structField.dataType, itemCount, runningTotal)))
-  }
-
-  private def dataTypeSize(dataType: DataType, itemCount: Int, totalSoFar: TailRec[ByteSize])
-                          (implicit dataTypeSizes: DataTypeSizes): TailRec[ByteSize] = {
-    dataType match {
-      case subStruct: StructType => tailcall(structSize(subStruct, itemCount, totalSoFar))
-      case array: ArrayType => tailcall(dataTypeSize(array.elementType, dataTypeSizes.averageArraySize * itemCount, totalSoFar))
-      case dataType => done(itemCount * dataTypeSizes(dataType) + totalSoFar.result)
-    }
-  }
+trait DataframeSizer extends RecordSizer {
+  def totalSize(df: DataFrame): ByteSize
 }

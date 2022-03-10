@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark.partition.sizing
+package za.co.absa.spark.partition.sizing.utils
 
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.util.SizeEstimator
 import za.co.absa.spark.partition.sizing.types.ByteSize
-
 
 object RowSizer {
 
@@ -33,7 +32,7 @@ object RowSizer {
       case row: GenericRowWithSchema =>
         val fieldNames: Seq[String] = row.schema.fields.map(_.name)
         val values = row.getValuesMap[AnyRef](fieldNames).values
-        values.foldLeft(accumulator) {(acc, item) => rowEstimate(item, acc)}
+        values.foldLeft(accumulator) { (acc, item) => rowEstimate(item, acc) }
       case _ => accumulator + SizeEstimator.estimate(item)
     }
   }

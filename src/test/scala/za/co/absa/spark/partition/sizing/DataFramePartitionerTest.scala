@@ -16,10 +16,12 @@
 
 package za.co.absa.spark.partition.sizing
 
-import org.apache.spark.sql.types
 import org.apache.spark.sql.types.{ArrayType, IntegerType, LongType, StringType, StructField, StructType}
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.spark.commons.test.SparkTestBase
+import za.co.absa.spark.partition.sizing.sizer.{FromDataframeSampleSizer, FromDataframeSizer, FromSchemaSizer, FromSchemaWithSummariesSizer}
+import za.co.absa.spark.partition.sizing.types.DataTypeSizes
+import za.co.absa.spark.partition.sizing.types.DataTypeSizes.DefaultDataTypeSizes
 
 class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
 
@@ -59,6 +61,13 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
       ))))
     ))
 
+  private implicit val defaultSizes: DataTypeSizes = DefaultDataTypeSizes
+
+  val fromDataframeRecordSizer = new FromDataframeSizer()
+  val fromSchemaRecordSizer = new FromSchemaSizer()
+  val fromDataframeSampleSizer = new FromDataframeSampleSizer(2)
+  val fromSchemaSummariesSizer = new FromSchemaWithSummariesSizer()
+
   test("Empty dataset") {
     val schema = new StructType()
       .add("not_important", StringType, nullable = true)
@@ -67,8 +76,18 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
     val result1 = df.repartitionByPlanSize(None, Option(2))
 
     val result2 = df.repartitionByRecordCount(5)
+
+    val result3 = df.repartitionByDesiredSize(fromDataframeRecordSizer)(None, Option(2))
+    val result4 = df.repartitionByDesiredSize(fromSchemaRecordSizer)(None, Option(2))
+    val result5 = df.repartitionByDesiredSize(fromDataframeSampleSizer)(None, Option(2))
+    val result6 = df.repartitionByDesiredSize(fromSchemaSummariesSizer)(None, Option(2))
+
     assertResult(df)(result1)
     assertResult(df)(result2)
+    assertResult(df)(result3)
+    assertResult(df)(result4)
+    assertResult(df)(result5)
+    assertResult(df)(result6)
   }
 
   test("Small dataset") {
@@ -78,8 +97,20 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
     assertResult(4)(max2RecordsPerPart.rdd.partitions.length)
     val max4RecordsPerPArt = df.repartitionByRecordCount(4)
     assertResult(2)(max4RecordsPerPArt.rdd.partitions.length)
-    val max4PlanSizePart = df.repartitionByPlanSize(None, Option(200))
-    assertResult(1)(max4PlanSizePart.rdd.partitions.length)
+
+    val min = Some(200L)
+    val max = Some(2000L)
+
+    val result2 = df.repartitionByPlanSize(min, max)
+    val result3 = df.repartitionByDesiredSize(fromDataframeRecordSizer)(min, max)
+    val result4 = df.repartitionByDesiredSize(fromSchemaRecordSizer)(min, max)
+    val result5 = df.repartitionByDesiredSize(fromDataframeSampleSizer)(min, max)
+    assertResult(1)(result2.rdd.partitions.length)
+    assertResult(1)(result3.rdd.partitions.length)
+    assertResult(18)(result4.rdd.partitions.length)
+    assertResult(11)(result5.rdd.partitions.length)
+
+    assertThrows[IllegalArgumentException](df.repartitionByDesiredSize(fromSchemaSummariesSizer)(min, max))
   }
 
 }

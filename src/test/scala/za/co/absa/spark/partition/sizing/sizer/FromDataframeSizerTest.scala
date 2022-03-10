@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark.partition.sizing
+package za.co.absa.spark.partition.sizing.sizer
 
 import org.scalatest.funsuite.AnyFunSuite
-import za.co.absa.spark.partition.sizing.utils.RowSizer
+import za.co.absa.spark.partition.sizing.DummyDatasets
 
-class RowSizerTest extends AnyFunSuite with DummyDatasets {
+class FromDataframeSizerTest extends AnyFunSuite with DummyDatasets {
 
-  test("Simple df") {
-    assert(RowSizer.rowSize(simpleDf.first()) < 100)
-    assert(RowSizer.rowSize(simpleDf.take(2).last) < 100)
+  test("test dummy dataframes") {
+    assert(new FromDataframeSizer().performSizing(simpleDf) < 80)
+    assert(new FromDataframeSizer().performSizing(arrayDf) < 170)
+    assert(new FromDataframeSizer().performSizing(structDf) < 140)
   }
 
-  test("Array df") {
-    assert(RowSizer.rowSize(arrayDf.first()) < 120)
-    assert(RowSizer.rowSize(arrayDf.take(2).last) < 250)
+  test("test deeper nested dataframe") {
+    val inputDf = spark.read
+      .schema(testCaseSchema)
+      .json(getClass.getResource(nestedFilePath).getPath)
+
+    assert(new FromDataframeSizer().performSizing(inputDf) < 1500)
   }
 
-  test("struct df") {
-    assert(RowSizer.rowSize(structDf.first()) < 150)
-    assert(RowSizer.rowSize(structDf.take(2).last) < 150)
-  }
 }

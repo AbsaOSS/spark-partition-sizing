@@ -14,25 +14,27 @@
  * limitations under the License.
  */
 
-package za.co.absa.spark.partition.sizing
+package za.co.absa.spark.partition.sizing.sizer
 
-import org.scalatest.funsuite.AnyFunSuite
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.functions.{avg, col}
+import za.co.absa.spark.partition.sizing.DataframeSizer
+import za.co.absa.spark.partition.sizing.types.ByteSize
 import za.co.absa.spark.partition.sizing.utils.RowSizer
 
-class RowSizerTest extends AnyFunSuite with DummyDatasets {
+class FromDataframeSizer() extends DataframeSizer {
+  override def totalSize(df: DataFrame): ByteSize = {
+    import df.sparkSession.implicits._
 
-  test("Simple df") {
-    assert(RowSizer.rowSize(simpleDf.first()) < 100)
-    assert(RowSizer.rowSize(simpleDf.take(2).last) < 100)
+    if(df.isEmpty) {
+      0L
+    } else {
+      val dfWithAvg: DataFrame = df.map(RowSizer.rowSize).agg(avg(col("value")))
+      dfWithAvg.collect().last.get(0).asInstanceOf[Number].longValue()
+    }
   }
 
-  test("Array df") {
-    assert(RowSizer.rowSize(arrayDf.first()) < 120)
-    assert(RowSizer.rowSize(arrayDf.take(2).last) < 250)
-  }
-
-  test("struct df") {
-    assert(RowSizer.rowSize(structDf.first()) < 150)
-    assert(RowSizer.rowSize(structDf.take(2).last) < 150)
+  override def performSizing(df: DataFrame): ByteSize = {
+    1L
   }
 }

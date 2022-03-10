@@ -22,7 +22,7 @@ import za.co.absa.spark.partition.sizing.types._
 object DataFramePartitioner {
   implicit class DataFrameFunctions(val df: DataFrame) extends AnyVal {
 
-    def cacheIfNot(): DataFrame = {
+    protected def cacheIfNot(): DataFrame = {
       val planToCache = df.queryExecution.analyzed
       if (df.sparkSession.sharedState.cacheManager.lookupCachedData(planToCache).isEmpty) {
         df.cache()
@@ -31,13 +31,13 @@ object DataFramePartitioner {
       }
     }
 
-    def partitionsRecordCount: Map[Int, Long] = {
+    private def partitionsRecordCount: Map[Int, Long] = {
       dataFramePartitionRecordCount(df)
         .map(x => (x.partitionId, x.recordCount))
         .toMap
     }
 
-    def recordCount: Long = {
+    private def recordCount: Long = {
       partitionsRecordCount.values.sum
     }
 
@@ -55,13 +55,13 @@ object DataFramePartitioner {
       }
     }
 
-    def repartitionByPlanSize(minPartitionSize: Option[ByteSize], maxPartitionSize: Option[ByteSize]): DataFrame = {
+    private def computeBlockCount(totalByteSize: BigInt, desiredSize: BigInt, addRemainder: Boolean): Int = {
+      val int = (totalByteSize / desiredSize).toInt
+      val blockCount = int + (if (addRemainder && (totalByteSize % desiredSize != 0)) 1 else 0)
+      blockCount max 1
+    }
 
-      def computeBlockCount(totalByteSize: BigInt, desiredSize: BigInt, addRemainder: Boolean): Int = {
-        val int = (totalByteSize / desiredSize).toInt
-        val blockCount = int + (if (addRemainder && (totalByteSize % desiredSize != 0)) 1 else 0)
-        blockCount max 1
-      }
+    def repartitionByPlanSize(minPartitionSize: Option[ByteSize], maxPartitionSize: Option[ByteSize]): DataFrame = {
 
       def changePartitionCount(blockCount: Int, fnc: Int => DataFrame): DataFrame = {
         val outputDf = fnc(blockCount)
@@ -91,6 +91,39 @@ object DataFramePartitioner {
         // empty dataframe
         df
       }
+    }
+
+    def repartitionByDesiredSize(recordSizer: RecordSizer)(minPartitionSize: Option[ByteSize],
+                                                           maxPartitionSize: Option[ByteSize]): DataFrame = {
+      val totalEstimatedSize = recordSizer match {
+        case s: DataframeSizer => s.totalSize(df)
+        case _ => {
+          val recordSize = recordSizer.performSizing(df)
+          recordSize * recordCount
+        }
+      }
+
+      val currentNrPartitions = df.rdd.getNumPartitions
+
+      if(currentNrPartitions > 0) {
+
+        (minPartitionSize, maxPartitionSize) match {
+          case (Some(min), None) if currentNrPartitions < totalEstimatedSize / min =>
+            val desiredNumberOfPartitions = (totalEstimatedSize / min) max 1
+            df.repartition(desiredNumberOfPartitions.toInt)
+          case (None, Some(max)) if currentNrPartitions < totalEstimatedSize / max =>
+            val desiredNumberOfPartitions = (totalEstimatedSize / max) max 1
+            df.repartition(desiredNumberOfPartitions.toInt)
+          case (Some(min), Some(max)) if currentNrPartitions < totalEstimatedSize / min ||
+            currentNrPartitions > totalEstimatedSize / max =>
+            val desiredNumberOfPartitions = (totalEstimatedSize / max) max 1
+            df.repartition(desiredNumberOfPartitions.toInt)
+          case _ => df
+        }
+      } else {
+        df
+      }
+
     }
   }
 }

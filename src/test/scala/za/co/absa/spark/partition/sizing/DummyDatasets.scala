@@ -28,7 +28,14 @@ trait DummyDatasets extends SparkTestBase {
   val simpleDfNames: immutable.Seq[String] = List("a", "b")
   val nestedDfNames: immutable.Seq[String] = simpleDfNames :+ "c"
 
+  val simpleMultiDfNames: immutable.Seq[String] = simpleDfNames ++ List("c", "d")
+
   val simpleDf: DataFrame = List((1,"sds"), (5, "asfdbfnfgnfgg")).toDF(simpleDfNames: _*)
+  val simpleMultiDf: DataFrame = List(
+    (1, "", 1L, 5.0),
+    (5, "asfdbfnfgnfgg", 60L, 0.0),
+    (0, "bgfbfgbg", 4L, 0.0),
+    (9, "c", 0L, 8.0)).toDF(simpleMultiDfNames: _*)
   val arrayDf: DataFrame = List((1,"sds", List()), (5, "asfdbfnfgnfgg", List(4,5,6,7,8))).toDF(nestedDfNames: _*)
   val structDf: DataFrame = List((1,"sds", (12,"zzzz")), (5, "asfdbfnfgnfgg", (55,""))).toDF(nestedDfNames: _*)
 
