@@ -25,10 +25,9 @@ object DataFramePartitioner {
     protected def cacheIfNot(): DataFrame = {
       val planToCache = df.queryExecution.analyzed
       if (df.sparkSession.sharedState.cacheManager.lookupCachedData(planToCache).isEmpty) {
-        df.cache()
-      } else {
-        df
+        df.cache().foreach(_ => ())
       }
+      df
     }
 
     private def partitionsRecordCount: Map[Int, Long] = {
@@ -62,6 +61,7 @@ object DataFramePartitioner {
     }
 
     def repartitionByPlanSize(minPartitionSize: Option[ByteSize], maxPartitionSize: Option[ByteSize]): DataFrame = {
+
 
       def changePartitionCount(blockCount: Int, fnc: Int => DataFrame): DataFrame = {
         val outputDf = fnc(blockCount)
