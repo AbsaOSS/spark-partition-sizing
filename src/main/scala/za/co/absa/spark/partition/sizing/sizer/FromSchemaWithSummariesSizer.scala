@@ -16,7 +16,7 @@
 
 package za.co.absa.spark.partition.sizing.sizer
 
-import org.apache.spark.annotation.Experimental
+import jdk.jfr.Experimental
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.{ArrayType, StructField, StructType}
 import za.co.absa.spark.partition.sizing.RecordSizer

@@ -32,7 +32,7 @@ class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
       .schema(testCaseSchema)
       .json(getClass.getResource(nestedFilePath).getPath)
 
-    assert(new FromDataframeSampleSizer(2).performSizing(inputDf) < 3000)
+    assert(new FromDataframeSampleSizer(2).performSizing(inputDf) < 2500)
   }
 
 }

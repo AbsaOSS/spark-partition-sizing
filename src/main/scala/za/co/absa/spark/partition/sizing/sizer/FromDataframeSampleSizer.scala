@@ -16,22 +16,30 @@
 
 package za.co.absa.spark.partition.sizing.sizer
 
+import jdk.jfr.Experimental
 import org.apache.spark.sql.DataFrame
 import za.co.absa.spark.partition.sizing.RecordSizer
 import za.co.absa.spark.partition.sizing.types.ByteSize
 import za.co.absa.spark.partition.sizing.utils.RowSizer
 
+@Experimental
 class FromDataframeSampleSizer(sampleSize: Int = 1) extends RecordSizer {
 
   override def performSizing(df: DataFrame): ByteSize = {
     if(df.isEmpty) {
       0L
     } else {
-      val (rowsTotalSize, rowCount) = df.head(sampleSize) //TODO head could be skewed
-        .foldLeft(0L, 0L) { case ((size, count), row) =>
-          (size + RowSizer.rowSize(row), count + 1)
-        }
-      ceilDiv(rowsTotalSize, rowCount)
+      val count = df.count()
+      val howManyToTake: ByteSize = if (count > sampleSize) sampleSize else count
+
+      val sampleSizes: Array[ByteSize] = df.sample(1.0 * howManyToTake / count)
+        .limit(sampleSize)
+        .collect()
+        .map(RowSizer.rowSize)
+
+      if(sampleSizes.isEmpty) {
+        0L
+      } else ceilDiv(sampleSizes.sum, sampleSizes.length)
     }
   }
 
