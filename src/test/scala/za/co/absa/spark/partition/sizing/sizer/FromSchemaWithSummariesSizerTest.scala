@@ -26,10 +26,10 @@ class FromSchemaWithSummariesSizerTest extends AnyFunSuite with DummyDatasets {
   private implicit val defaultSizes: DataTypeSizes = DefaultDataTypeSizes
 
   test("test dummy dataframes") {
-    assert(new FromSchemaWithSummariesSizer().performSizing(simpleDf) < 80)
-    assert(new FromSchemaWithSummariesSizer().performSizing(simpleMultiDf) < 160)
-    assertThrows[IllegalArgumentException](new FromSchemaWithSummariesSizer().performSizing(arrayDf))
-    assertThrows[IllegalArgumentException](new FromSchemaWithSummariesSizer().performSizing(structDf))
+    assert(new FromSchemaWithSummariesSizer().performRowSizing(simpleDf) < 80)
+    assert(new FromSchemaWithSummariesSizer().performRowSizing(simpleMultiDf) < 160)
+    assertThrows[IllegalArgumentException](new FromSchemaWithSummariesSizer().performRowSizing(arrayDf))
+    assertThrows[IllegalArgumentException](new FromSchemaWithSummariesSizer().performRowSizing(structDf))
   }
 
 }

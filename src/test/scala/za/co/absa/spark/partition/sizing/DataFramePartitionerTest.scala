@@ -65,7 +65,9 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
 
   val fromDataframeRecordSizer = new FromDataframeSizer()
   val fromSchemaRecordSizer = new FromSchemaSizer()
-  val fromDataframeSampleSizer = new FromDataframeSampleSizer(2)
+  val fromDataframe2SampleSizer = new FromDataframeSampleSizer(2)
+  val fromDataframe4SampleSizer = new FromDataframeSampleSizer(4)
+  val fromDataframe6SampleSizer = new FromDataframeSampleSizer(6)
   val fromSchemaSummariesSizer = new FromSchemaWithSummariesSizer()
 
   test("Empty dataset") {
@@ -79,7 +81,7 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
 
     val result3 = df.repartitionByDesiredSize(fromDataframeRecordSizer)(None, Option(2))
     val result4 = df.repartitionByDesiredSize(fromSchemaRecordSizer)(None, Option(2))
-    val result5 = df.repartitionByDesiredSize(fromDataframeSampleSizer)(None, Option(2))
+    val result5 = df.repartitionByDesiredSize(fromDataframe2SampleSizer)(None, Option(2))
     val result6 = df.repartitionByDesiredSize(fromSchemaSummariesSizer)(None, Option(2))
 
     assertResult(df)(result1)
@@ -90,7 +92,7 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
     assertResult(df)(result6)
   }
 
-  test("Small dataset") {
+  test("Small nested dataset") {
     val df = spark.read.schema(testCaseSchema).json("src/test/resources/nested_data")
 
     val max2RecordsPerPart = df.repartitionByRecordCount(2)
@@ -104,7 +106,9 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
     val result2 = df.repartitionByPlanSize(min, max)
     val result3 = df.repartitionByDesiredSize(fromDataframeRecordSizer)(min, max)
     val result4 = df.repartitionByDesiredSize(fromSchemaRecordSizer)(min, max)
-    val result5 = df.repartitionByDesiredSize(fromDataframeSampleSizer)(min, max)
+    val result5 = df.repartitionByDesiredSize(fromDataframe2SampleSizer)(min, max)
+    val result6 = df.repartitionByDesiredSize(fromDataframe4SampleSizer)(min, max)
+    val result7 = df.repartitionByDesiredSize(fromDataframe6SampleSizer)(min, max)
     assertResult(1)(result2.rdd.partitions.length)
     assertResult(1)(result3.rdd.partitions.length)
     assertResult(18)(result4.rdd.partitions.length)

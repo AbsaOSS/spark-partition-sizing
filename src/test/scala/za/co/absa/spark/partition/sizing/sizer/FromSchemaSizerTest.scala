@@ -26,9 +26,9 @@ class FromSchemaSizerTest extends AnyFunSuite with DummyDatasets {
   private implicit val defaultSizes: DataTypeSizes = DefaultDataTypeSizes
 
   test("test dummy dataframes") {
-    assert(new FromSchemaSizer().performSizing(simpleDf) < 80)
-    assert(new FromDataframeSizer().performSizing(arrayDf) < 170)
-    assert(new FromDataframeSizer().performSizing(structDf) < 140)
+    assert(new FromSchemaSizer().performRowSizing(simpleDf) < 80)
+    assert(new FromDataframeSizer().performRowSizing(arrayDf) < 170)
+    assert(new FromDataframeSizer().performRowSizing(structDf) < 140)
   }
 
   test("test deeper nested dataframe") {
@@ -36,7 +36,7 @@ class FromSchemaSizerTest extends AnyFunSuite with DummyDatasets {
       .schema(testCaseSchema)
       .json(getClass.getResource(nestedFilePath).getPath)
 
-    assert(new FromDataframeSizer().performSizing(inputDf) < 1500)
+    assert(new FromDataframeSizer().performRowSizing(inputDf) < 1500)
   }
 
 }

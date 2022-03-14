@@ -97,10 +97,9 @@ object DataFramePartitioner {
                                                            maxPartitionSize: Option[ByteSize]): DataFrame = {
       val totalEstimatedSize = recordSizer match {
         case s: DataframeSizer => s.totalSize(df)
-        case _ => {
-          val recordSize = recordSizer.performSizing(df)
+        case _ =>
+          val recordSize = recordSizer.performRowSizing(df)
           recordSize * recordCount
-        }
       }
 
       val currentNrPartitions = df.rdd.getNumPartitions
