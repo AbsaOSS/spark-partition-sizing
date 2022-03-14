@@ -23,7 +23,7 @@ import za.co.absa.spark.partition.sizing.utils.RowSizer
 
 class FromDataframeSampleSizer(sampleSize: Int = 1) extends RecordSizer {
 
-  override def performSizing(df: DataFrame): ByteSize = {
+  override def performRowSizing(df: DataFrame): ByteSize = {
     if(df.isEmpty) {
       0L
     } else {

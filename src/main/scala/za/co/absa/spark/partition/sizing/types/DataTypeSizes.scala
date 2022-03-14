@@ -16,8 +16,7 @@
 
 package za.co.absa.spark.partition.sizing.types
 
-import org.apache.spark.sql.types.{ByteType, _}
-import org.apache.spark.util.SizeEstimator
+import org.apache.spark.sql.types._
 
 case class DataTypeSizes(typeSizes: DataType => ByteSize, averageArraySize: Int) {
   def apply(dataType: DataType): ByteSize = {
@@ -27,19 +26,9 @@ case class DataTypeSizes(typeSizes: DataType => ByteSize, averageArraySize: Int)
 }
 
 object DataTypeSizes {
-  private def dataTypeSizes(provided: DataType): ByteSize = {
-    provided match {
-      case NullType => 0L
-      case ByteType => 1L
-      case BooleanType => 1L
-      case ShortType => 2L
-      case IntegerType => 4L
-      case LongType => 8L
-      case _ => SizeEstimator.estimate(provided)
-    }
-  }
+  private def dataTypeSizes(provided: DataType): ByteSize = provided.defaultSize
 
-  final val DefaultDataTypeSizes = new DataTypeSizes(dataTypeSizes, 12)
+  final val DefaultDataTypeSizes = new DataTypeSizes(dataTypeSizes, 4)
 }
 
 

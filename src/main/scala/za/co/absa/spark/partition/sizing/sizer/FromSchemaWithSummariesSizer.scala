@@ -26,7 +26,7 @@ import za.co.absa.spark.partition.sizing.types.{ByteSize, DataTypeSizes}
 @Experimental
 class FromSchemaWithSummariesSizer(implicit dataTypeSizes: DataTypeSizes) extends RecordSizer {
 
-  override def performSizing(df: DataFrame): ByteSize = {
+  override def performRowSizing(df: DataFrame): ByteSize = {
     if(df.isEmpty) 0L
     else {
       val schemaNames = df.schema.map(_.name)
