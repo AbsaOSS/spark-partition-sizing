@@ -23,7 +23,7 @@ import za.co.absa.spark.partition.sizing.types._
   * Estimate an average row size in bytes.
   */
 trait RecordSizer {
-  def performRowSizing(df: DataFrame): ByteSize
+  def performRowSizing(df: DataFrame, recordCount: Option[Int] = None): ByteSize
 }
 
 trait DataframeSizer extends RecordSizer {

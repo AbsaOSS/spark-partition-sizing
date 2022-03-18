@@ -79,8 +79,6 @@ Repartitionns the `DataFrame` that each partition contains roughly the provided 
     val repartitionedDf = df.repartitionByRecordCount(targetNrOfRecordsPerPartition)
 ```
 
-Repartitionns the `DataFrame` that each partiton contains roughly the provided number of records. 
-
 ### repartitionByDesiredSize
 
 Similarly to `repartitionByPlanSize`, it estimates the total size of the dataframe and checks if that estimation is within 

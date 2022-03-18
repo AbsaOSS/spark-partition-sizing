@@ -26,16 +26,20 @@ import za.co.absa.spark.partition.sizing.types.{ByteSize, DataTypeSizes}
 @Experimental
 class FromSchemaWithSummariesSizer(implicit dataTypeSizes: DataTypeSizes) extends RecordSizer {
 
-  override def performRowSizing(df: DataFrame): ByteSize = {
+  override def performRowSizing(df: DataFrame, recordCount: Option[Int] = None): ByteSize = {
     if(df.isEmpty) 0L
     else {
+      val totalCounts: ByteSize = recordCount match {
+        case Some(x) => x
+        case None => df.count()
+      }
+
       val schemaNames = df.schema.map(_.name)
 
       val hasComplexTypes = df.schema.fields.exists(f => f.dataType.isInstanceOf[StructType] || f.dataType.isInstanceOf[ArrayType])
       if (hasComplexTypes) throw new IllegalArgumentException("Sizer not working with complex types")
 
       val summaries: Map[String, String] = df.summary("count").head().getValuesMap(schemaNames)
-      val totalCounts: ByteSize = df.count()
       val existingPercentages: Map[String, Double] = summaries.mapValues(_.toDouble / totalCounts.toDouble)
 
       df.schema.fields.foldLeft(0.0)((runningTotal: Double, structField: StructField) => {

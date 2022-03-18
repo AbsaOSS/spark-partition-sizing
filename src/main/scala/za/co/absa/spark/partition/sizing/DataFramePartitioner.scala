@@ -98,7 +98,7 @@ object DataFramePartitioner {
       val totalEstimatedSize = recordSizer match {
         case s: DataframeSizer => s.totalSize(df)
         case _ =>
-          val recordSize = recordSizer.performRowSizing(df)
+          val recordSize = recordSizer.performRowSizing(df, Some(recordCount.toInt))
           recordSize * recordCount
       }
 

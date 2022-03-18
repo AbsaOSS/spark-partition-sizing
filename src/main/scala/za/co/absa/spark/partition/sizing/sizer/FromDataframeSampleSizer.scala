@@ -25,14 +25,18 @@ import za.co.absa.spark.partition.sizing.utils.RowSizer
 @Experimental
 class FromDataframeSampleSizer(sampleSize: Int = 1) extends RecordSizer {
 
-  override def performRowSizing(df: DataFrame): ByteSize = {
+  override def performRowSizing(df: DataFrame, recordCount: Option[Int] = None): ByteSize = {
     if(df.isEmpty) {
       0L
     } else {
-      val count = df.count()
-      val howManyToTake: ByteSize = if (count > sampleSize) sampleSize else count
+      val rowCount: ByteSize = recordCount match {
+        case Some(x) => x
+        case None => df.count()
+      }
 
-      val sampleSizes: Array[ByteSize] = df.sample(1.0 * howManyToTake / count)
+      val howManyToTake: ByteSize = if (rowCount > sampleSize) sampleSize else rowCount
+
+      val sampleSizes: Array[ByteSize] = df.sample(1.0 * howManyToTake / rowCount)
         .limit(sampleSize)
         .collect()
         .map(RowSizer.rowSize)
