@@ -34,16 +34,15 @@ class FromSchemaWithSummariesSizer(implicit dataTypeSizes: DataTypeSizes) extend
         case None => df.count()
       }
 
-      val schemaNames = df.schema.map(_.name)
-
       val hasComplexTypes = df.schema.fields.exists(f => f.dataType.isInstanceOf[StructType] || f.dataType.isInstanceOf[ArrayType])
       if (hasComplexTypes) throw new IllegalArgumentException("Sizer not working with complex types")
 
-      val summaries: Map[String, String] = df.summary("count").head().getValuesMap(schemaNames)
+      val summary = df.summary("count")
+      val summaries: Map[String, String] = summary.head().getValuesMap(summary.dtypes.map(_._1))
       val existingPercentages: Map[String, Double] = summaries.mapValues(_.toDouble / totalCounts.toDouble)
 
       df.schema.fields.foldLeft(0.0)((runningTotal: Double, structField: StructField) => {
-        val weightedTypes: Double = dataTypeSizes.typeSizes(structField.dataType) * existingPercentages(structField.name)
+        val weightedTypes: Double = dataTypeSizes.typeSizes(structField.dataType) * existingPercentages.getOrElse(structField.name, 0.0)
         runningTotal + weightedTypes
       }).toLong
     }

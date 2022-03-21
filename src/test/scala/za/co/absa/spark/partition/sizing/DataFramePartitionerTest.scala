@@ -109,7 +109,7 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
     val result5 = df.repartitionByDesiredSize(fromDataframe2SampleSizer)(min, max)
     val result6 = df.repartitionByDesiredSize(fromDataframe4SampleSizer)(min, max)
     val result7 = df.repartitionByDesiredSize(fromDataframe6SampleSizer)(min, max)
-    assertResult(1)(result2.rdd.partitions.length)
+    assertResult(2)(result2.rdd.partitions.length)
     assertResult(5)(result3.rdd.partitions.length)
     assertResult(2)(result4.rdd.partitions.length)
     assert(result5.rdd.partitions.length >= 3)

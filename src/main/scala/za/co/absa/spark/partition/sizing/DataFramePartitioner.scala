@@ -80,11 +80,11 @@ object DataFramePartitioner {
 
         (minPartitionSize, maxPartitionSize) match {
           case (Some(min), None) if currentBlockSize < min =>
-            changePartitionCount(computeBlockCount(min, sizeInBytes, addRemainder = false), df.coalesce)
+            changePartitionCount(computeBlockCount(sizeInBytes, min, addRemainder = false), df.coalesce)
           case (None, Some(max)) if currentBlockSize > max =>
-            changePartitionCount(computeBlockCount(max, sizeInBytes, addRemainder = true), df.repartition)
+            changePartitionCount(computeBlockCount(sizeInBytes, max, addRemainder = true), df.repartition)
           case (Some(min), Some(max)) if currentBlockSize < min || currentBlockSize > max =>
-            changePartitionCount(computeBlockCount(max, sizeInBytes, addRemainder = true), df.repartition)
+            changePartitionCount(computeBlockCount(sizeInBytes, max, addRemainder = true), df.repartition)
           case _ => df
         }
       } else {
