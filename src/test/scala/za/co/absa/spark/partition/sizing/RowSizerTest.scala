@@ -16,16 +16,23 @@
 
 package za.co.absa.spark.partition.sizing
 
-import org.apache.spark.sql.DataFrame
-import za.co.absa.spark.partition.sizing.types._
+import org.scalatest.funsuite.AnyFunSuite
+import za.co.absa.spark.partition.sizing.utils.RowSizer
 
-/**
-  * Estimate an average row size in bytes.
-  */
-trait RecordSizer {
-  def performRowSizing(df: DataFrame): ByteSize
-}
+class RowSizerTest extends AnyFunSuite with DummyDatasets {
 
-trait DataframeSizer extends RecordSizer {
-  def totalSize(df: DataFrame): ByteSize
+  test("Simple df") {
+    assert(RowSizer.rowSize(simpleDf.first()) < 100)
+    assert(RowSizer.rowSize(simpleDf.take(2).last) < 100)
+  }
+
+  test("Array df") {
+    assert(RowSizer.rowSize(arrayDf.first()) < 120)
+    assert(RowSizer.rowSize(arrayDf.take(2).last) < 250)
+  }
+
+  test("struct df") {
+    assert(RowSizer.rowSize(structDf.first()) < 150)
+    assert(RowSizer.rowSize(structDf.take(2).last) < 150)
+  }
 }
