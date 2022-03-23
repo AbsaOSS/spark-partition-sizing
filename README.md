@@ -36,8 +36,8 @@ Maven
 </dependency>
 ```
 
-### Building
-To build the package locally, run:
+### Building and testing
+To build and test the package locally, run:
 ```
 sbt clean test
 ```
