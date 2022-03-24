@@ -95,6 +95,10 @@ object DataFramePartitioner {
 
     def repartitionByDesiredSize(recordSizer: RecordSizer)(minPartitionSize: Option[ByteSize],
                                                            maxPartitionSize: Option[ByteSize]): DataFrame = {
+      // preferably uses implementations of computing the total, while some sizers can only estimate the record count and
+      // then multiply by the number of records,
+      // while others can directly compute the total size of the df, thus not needing to get dfRecordCount
+
       val totalEstimatedSize = recordSizer match {
         case s: DataframeSizer => s.totalSize(df)
         case _ =>
