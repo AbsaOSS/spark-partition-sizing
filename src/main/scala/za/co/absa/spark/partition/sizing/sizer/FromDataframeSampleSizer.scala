@@ -16,22 +16,37 @@
 
 package za.co.absa.spark.partition.sizing.sizer
 
+import jdk.jfr.Experimental
 import org.apache.spark.sql.DataFrame
 import za.co.absa.spark.partition.sizing.RecordSizer
 import za.co.absa.spark.partition.sizing.types.ByteSize
 import za.co.absa.spark.partition.sizing.utils.RowSizer
 
+@Experimental
 class FromDataframeSampleSizer(sampleSize: Int = 1) extends RecordSizer {
 
-  override def performRowSizing(df: DataFrame): ByteSize = {
+  override def performRowSizing(df: DataFrame, dfRecordCount: Option[Int] = None): ByteSize = {
     if(df.isEmpty) {
       0L
     } else {
-      val (rowsTotalSize, rowCount) = df.head(sampleSize) //TODO head could be skewed
-        .foldLeft(0L, 0L) { case ((size, count), row) =>
-          (size + RowSizer.rowSize(row), count + 1)
-        }
-      ceilDiv(rowsTotalSize, rowCount)
+      val rowCount: ByteSize = dfRecordCount match {
+        case Some(x) => x
+        case None => df.count()
+      }
+
+      val howManyToTake: ByteSize = if (rowCount > sampleSize) sampleSize else rowCount
+
+      // number of samples is passed to the limit parameter, which ensures more than 0 samples will be returned
+      val sampleSizes: Array[ByteSize] = df.sample(1.0 * howManyToTake / rowCount)
+        .limit(sampleSize)
+        .collect()
+        .map(RowSizer.rowSize)
+
+      if(sampleSizes.isEmpty) {
+        0L
+      } else {
+        ceilDiv(sampleSizes.sum, sampleSizes.length)
+      }
     }
   }
 

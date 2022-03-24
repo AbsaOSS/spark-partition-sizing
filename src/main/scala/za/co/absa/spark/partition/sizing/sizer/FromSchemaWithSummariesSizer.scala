@@ -16,7 +16,7 @@
 
 package za.co.absa.spark.partition.sizing.sizer
 
-import org.apache.spark.annotation.Experimental
+import jdk.jfr.Experimental
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.{ArrayType, StructField, StructType}
 import za.co.absa.spark.partition.sizing.RecordSizer
@@ -26,20 +26,23 @@ import za.co.absa.spark.partition.sizing.types.{ByteSize, DataTypeSizes}
 @Experimental
 class FromSchemaWithSummariesSizer(implicit dataTypeSizes: DataTypeSizes) extends RecordSizer {
 
-  override def performRowSizing(df: DataFrame): ByteSize = {
+  override def performRowSizing(df: DataFrame, dfRecordCount: Option[Int] = None): ByteSize = {
     if(df.isEmpty) 0L
     else {
-      val schemaNames = df.schema.map(_.name)
+      val totalCounts: ByteSize = dfRecordCount match {
+        case Some(x) => x
+        case None => df.count()
+      }
 
       val hasComplexTypes = df.schema.fields.exists(f => f.dataType.isInstanceOf[StructType] || f.dataType.isInstanceOf[ArrayType])
       if (hasComplexTypes) throw new IllegalArgumentException("Sizer not working with complex types")
 
-      val summaries: Map[String, String] = df.summary("count").head().getValuesMap(schemaNames)
-      val totalCounts: ByteSize = df.count()
+      val summary = df.summary("count")
+      val summaries: Map[String, String] = summary.head().getValuesMap(summary.dtypes.map(_._1))
       val existingPercentages: Map[String, Double] = summaries.mapValues(_.toDouble / totalCounts.toDouble)
 
       df.schema.fields.foldLeft(0.0)((runningTotal: Double, structField: StructField) => {
-        val weightedTypes: Double = dataTypeSizes.typeSizes(structField.dataType) * existingPercentages(structField.name)
+        val weightedTypes: Double = dataTypeSizes.typeSizes(structField.dataType) * existingPercentages.getOrElse(structField.name, 0.0)
         runningTotal + weightedTypes
       }).toLong
     }

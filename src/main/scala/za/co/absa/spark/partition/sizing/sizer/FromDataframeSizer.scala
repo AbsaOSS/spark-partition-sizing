@@ -40,7 +40,7 @@ class FromDataframeSizer() extends DataframeSizer {
     computeSize(df, sum)
   }
 
-  override def performRowSizing(df: DataFrame): ByteSize = {
+  override def performRowSizing(df: DataFrame, dfRecordCount: Option[Int] = None): ByteSize = {
     computeSize(df, avg)
   }
 }

@@ -21,10 +21,16 @@ import za.co.absa.spark.partition.sizing.DummyDatasets
 
 class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
 
+  private val sizer = new FromDataframeSampleSizer(2)
   test("test dummy dataframes") {
-    assert(new FromDataframeSampleSizer(2).performRowSizing(simpleDf) < 80)
-    assert(new FromDataframeSampleSizer(2).performRowSizing(arrayDf) < 170)
-    assert(new FromDataframeSampleSizer(2).performRowSizing(structDf) < 140)
+    assert(sizer.performRowSizing(simpleDf) < 80)
+    assert(sizer.performRowSizing(simpleDf) > 0)
+
+    assert(sizer.performRowSizing(arrayDf) < 170)
+    assert(sizer.performRowSizing(arrayDf) > 0)
+
+    assert(sizer.performRowSizing(structDf) < 140)
+    assert(sizer.performRowSizing(structDf) > 0)
   }
 
   test("test deeper nested dataframe") {
@@ -32,7 +38,9 @@ class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
       .schema(testCaseSchema)
       .json(getClass.getResource(nestedFilePath).getPath)
 
-    assert(new FromDataframeSampleSizer(2).performRowSizing(inputDf) < 3000)
+    assert(sizer.performRowSizing(inputDf) < 3000)
+    //the number of samples should be higher than 0
+    assert(sizer.performRowSizing(inputDf) > 0)
   }
 
 }

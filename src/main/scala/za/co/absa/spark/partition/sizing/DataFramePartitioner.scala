@@ -80,11 +80,11 @@ object DataFramePartitioner {
 
         (minPartitionSize, maxPartitionSize) match {
           case (Some(min), None) if currentBlockSize < min =>
-            changePartitionCount(computeBlockCount(min, sizeInBytes, addRemainder = false), df.coalesce)
+            changePartitionCount(computeBlockCount(sizeInBytes, min, addRemainder = false), df.coalesce)
           case (None, Some(max)) if currentBlockSize > max =>
-            changePartitionCount(computeBlockCount(max, sizeInBytes, addRemainder = true), df.repartition)
+            changePartitionCount(computeBlockCount(sizeInBytes, max, addRemainder = true), df.repartition)
           case (Some(min), Some(max)) if currentBlockSize < min || currentBlockSize > max =>
-            changePartitionCount(computeBlockCount(max, sizeInBytes, addRemainder = true), df.repartition)
+            changePartitionCount(computeBlockCount(sizeInBytes, max, addRemainder = true), df.repartition)
           case _ => df
         }
       } else {
@@ -95,10 +95,14 @@ object DataFramePartitioner {
 
     def repartitionByDesiredSize(recordSizer: RecordSizer)(minPartitionSize: Option[ByteSize],
                                                            maxPartitionSize: Option[ByteSize]): DataFrame = {
+      // preferably uses implementations of computing the total, while some sizers can only estimate the record count and
+      // then multiply by the number of records,
+      // while others can directly compute the total size of the df, thus not needing to get dfRecordCount
+
       val totalEstimatedSize = recordSizer match {
         case s: DataframeSizer => s.totalSize(df)
         case _ =>
-          val recordSize = recordSizer.performRowSizing(df)
+          val recordSize = recordSizer.performRowSizing(df, Some(recordCount.toInt))
           recordSize * recordCount
       }
 
