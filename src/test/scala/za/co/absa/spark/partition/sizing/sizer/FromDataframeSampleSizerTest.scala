@@ -24,8 +24,11 @@ class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
   private val sizer = new FromDataframeSampleSizer(2)
   test("test dummy dataframes") {
     assert(sizer.performRowSizing(simpleDf) < 80)
+    assert(sizer.performRowSizing(simpleDf) > 0)
     assert(sizer.performRowSizing(arrayDf) < 170)
+    assert(sizer.performRowSizing(arrayDf) > 0)
     assert(sizer.performRowSizing(structDf) < 140)
+    assert(sizer.performRowSizing(structDf) > 0)
   }
 
   test("test deeper nested dataframe") {
@@ -34,6 +37,8 @@ class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
       .json(getClass.getResource(nestedFilePath).getPath)
 
     assert(sizer.performRowSizing(inputDf) < 3000)
+    //the number of samples should be higher than 0
+    assert(sizer.performRowSizing(inputDf) > 0)
   }
 
 }
