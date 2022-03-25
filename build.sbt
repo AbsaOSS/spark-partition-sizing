@@ -1,5 +1,3 @@
-import Dependencies.sparkVersion
-
 /*
  * Copyright 2021 ABSA Group Limited
  *
@@ -25,6 +23,22 @@ import Dependencies._
 
 ThisBuild / crossScalaVersions := Seq(scala211, scala212)
 ThisBuild / scalaVersion := scala211
+
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  releaseStepCommand("publishSigned"),
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)
 
 lazy val printSparkScalaVersion = taskKey[Unit]("Print Spark and Scala versions spark-commons is being built for.")
 ThisBuild / printSparkScalaVersion := {

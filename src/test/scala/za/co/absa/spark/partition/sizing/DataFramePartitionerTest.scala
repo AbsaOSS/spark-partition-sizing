@@ -112,9 +112,9 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
     assertResult(2)(result2.rdd.partitions.length)
     assertResult(5)(result3.rdd.partitions.length)
     assertResult(2)(result4.rdd.partitions.length)
-    assert(result5.rdd.partitions.length >= 3)
-    assert(result6.rdd.partitions.length >= 3)
-    assert(result7.rdd.partitions.length >= 3)
+    assert(result5.rdd.partitions.length >= 1)
+    assert(result6.rdd.partitions.length >= 1)
+    assert(result7.rdd.partitions.length >= 1)
 
     assertThrows[IllegalArgumentException](df.repartitionByDesiredSize(fromSchemaSummariesSizer)(min, max))
   }
