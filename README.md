@@ -44,7 +44,7 @@ sbt clean test
 
 ## Repartitioning
 
-The goal of the `DataFrameParitioner` class is to offer new partitioning possibilities and other helping functions.
+The goal of the `DataFramePartitioner` class is to offer new partitioning possibilities and other helping functions.
 
 ### repartitionsByRecordCount
 
@@ -71,7 +71,7 @@ block size will be within the range.
 
 ### repartitionByRecordCount
 
-Repartitionns the `DataFrame` that each partition contains roughly the provided number of records
+Repartitions the `DataFrame` that each partition contains roughly the provided number of records
 
 ```scala
     import za.co.absa.spark.partition.sizing.DataFramePartitioner.DataFrameFunctions
@@ -106,7 +106,7 @@ It estimates the size of each row and then sums the values, thus giving a better
 
 #### FromSchemaSizer
 
-Estimate the row size based on a the dataframe schema and the expected/typical field sizes. Its main advantage is that this approach is quite quick, since
+Estimate the row size based on a dataframe schema and the expected/typical field sizes. Its main advantage is that this approach is quite quick, since
  the data from the dataset will not be used and no action will run through the data. The accuracy of the estimation, however,
   is not likely to be high, since nullability or complex structures may not be so well estimated.
   It needs an implicit parameter for computing the data sizes, which can be a custom user provided one or the default DefaultDataTypeSizes.
