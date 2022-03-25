@@ -46,10 +46,6 @@ sbt clean test
 
 The goal of the `DataFramePartitioner` class is to offer new partitioning possibilities and other helping functions.
 
-### repartitionsByRecordCount
-
-List of partitions each with their record count. 
-
 ### repartitionByPlanSize
 
 Repartitions the `DataFrame` so the partition size is between the provided _min_ and _max_ parameters, judged by the execution
