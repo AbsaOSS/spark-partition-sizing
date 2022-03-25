@@ -23,7 +23,6 @@ import Dependencies._
 
 ThisBuild / crossScalaVersions := Seq(scala211, scala212)
 ThisBuild / scalaVersion := scala211
-ThisBuild / releaseCrossBuild := true
 
 import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
