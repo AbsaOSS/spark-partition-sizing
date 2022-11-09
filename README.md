@@ -42,6 +42,15 @@ To build and test the package locally, run:
 sbt clean test
 ```
 
+### How to generate Code coverage report
+```sbt
+sbt jacoco
+```
+Code coverage will be generated on path:
+```
+{local-path}\spark-partition-sizing\target\scala-2.XY\jacoco\report\html
+```
+
 ## Repartitioning
 
 The goal of the `DataFramePartitioner` class is to offer new partitioning possibilities and other helping functions.

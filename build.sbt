@@ -49,3 +49,17 @@ ThisBuild / printSparkScalaVersion := {
 libraryDependencies ++= dependencies
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
+
+// JaCoCo code coverage
+Test / jacocoReportSettings := JacocoReportSettings(
+  s"spark-partition-sizing Jacoco Report - ${scalaVersion.value}",
+  None,
+  JacocoThresholds(),
+  Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML),
+  "utf-8")
+
+// exclude example
+Test / jacocoExcludes := Seq(
+//  "za.co.absa.spark.partition.sizing.types.DataTypeSizes*", // class and related objects
+//  "za.co.absa.spark.partition.sizing.DataFramePartitioner" // class only
+)
