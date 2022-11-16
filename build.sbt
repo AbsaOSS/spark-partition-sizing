@@ -52,11 +52,9 @@ releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
 // JaCoCo code coverage
 Test / jacocoReportSettings := JacocoReportSettings(
-  s"spark-partition-sizing Jacoco Report - ${scalaVersion.value}",
-  None,
-  JacocoThresholds(),
-  Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML),
-  "utf-8")
+  title = s"spark-partition-sizing Jacoco Report - ${scalaVersion.value}",
+  formats = Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML)
+)
 
 // exclude example
 Test / jacocoExcludes := Seq(
