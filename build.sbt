@@ -40,13 +40,27 @@ releaseProcess := Seq[ReleaseStep](
   pushChanges
 )
 
+// mapping 2.11 -> Spark 2.4, 2.12 -> Spark 3.2; but sysProp SPARK_VERSION takes precedence
+def sparkVersionForScala(scalaVersion: String): String = sys.props.get("SPARK_VERSION") match {
+  case Some(version) => version
+  case _ if scalaVersion.startsWith("2.11") => Versions.spark2
+  case _ if scalaVersion.startsWith("2.12") => Versions.spark3
+  case _ => throw new IllegalArgumentException("Only Scala 2.11 and 2.12 are currently supported.")
+}
+
 lazy val printSparkScalaVersion = taskKey[Unit]("Print Spark and Scala versions spark-commons is being built for.")
 ThisBuild / printSparkScalaVersion := {
   val log = streams.value.log
-  log.info(s"Building with Spark ${sparkVersion}, Scala ${scalaVersion.value}")
+  val sparkVersion = sparkVersionForScala(scalaVersion.value)
+  log.info(s"Building with Scala ${scalaVersion.value}, Spark $sparkVersion")
 }
 
-libraryDependencies ++= dependencies
+(Compile / compile) := ((Compile / compile) dependsOn printSparkScalaVersion).value // printSparkScalaVersion is run with compile
+
+libraryDependencies ++= {
+  val sparkVersion = sparkVersionForScala(scalaVersion.value)
+  dependencies(sparkVersion)
+}
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 

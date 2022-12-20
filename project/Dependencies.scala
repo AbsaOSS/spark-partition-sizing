@@ -17,16 +17,22 @@ import sbt._
 
 object Dependencies {
 
-  def sparkVersion: String = sys.props.getOrElse("SPARK_VERSION", "2.4.7")
+  object Versions {
+    val spark2 = "2.4.8"
+    val spark3 = "3.2.3"
 
-  lazy val sparkCore = "org.apache.spark"    %% "spark-core"         % sparkVersion  % "provided"
-  lazy val sparkSql  = "org.apache.spark"    %% "spark-sql"          % sparkVersion  % "provided"
-  lazy val sparkCommon="za.co.absa"          %% "spark-commons-test" % "0.2.0"  % Test
-  lazy val scalaTest = "org.scalatest"       %% "scalatest"          % "3.2.9"  % Test
+    val sparkCommonsTest = "0.2.0"
+    val scalaTest = "3.2.9"
+  }
 
-  lazy val dependencies: Seq[ModuleID] = Seq(
-    sparkCore,
-    sparkSql,
+  def sparkCore(sparkVersion: String) = "org.apache.spark"  %% "spark-core"         % sparkVersion  % Provided
+  def sparkSql(sparkVersion: String)  = "org.apache.spark"  %% "spark-sql"          % sparkVersion  % Provided
+  lazy val sparkCommon                = "za.co.absa"        %% "spark-commons-test" % Versions.sparkCommonsTest % Test
+  lazy val scalaTest                  = "org.scalatest"     %% "scalatest"          % Versions.scalaTest % Test
+
+  def dependencies(sparkVersion: String): Seq[ModuleID] = Seq(
+    sparkCore(sparkVersion),
+    sparkSql(sparkVersion),
     sparkCommon,
     scalaTest
   )
