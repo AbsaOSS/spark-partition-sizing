@@ -43,6 +43,16 @@ object SparkVersionAxis {
             libraryDependencies ++= dependencies(sparkAxis.sparkVersion)
         ).settings(settings: _*)
       )
+//    TODO
+//    def sparkRow(sparkAxis: SparkVersionAxis, scalaVersion: String, settings: Def.SettingsDefinition*)(implicit : ProjectMatrix =
+//      p.customRow(
+//        scalaVersions = Seq(scalaVersion),
+//        axisValues = Seq(sparkAxis, VirtualAxis.jvm),
+//        _.settings(
+//          moduleName := camelCaseToLowerDashCase(name.value + sparkAxis.directorySuffix),
+//          libraryDependencies ++= dependencies(sparkAxis.sparkVersion)
+//        ).settings(settings: _*)
+//      )
   }
 }
 

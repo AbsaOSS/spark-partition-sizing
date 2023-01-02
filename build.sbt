@@ -48,14 +48,8 @@ lazy val commonSettings = Seq(
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
-// JaCoCo code coverage
-//Test / jacocoReportSettings := JacocoReportSettings(
-//  title = s"spark-partition-sizing Jacoco Report - ${scalaVersion.value}",
-//  formats = Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML)
-//)
-
-lazy val jacocoSparkCommonsReportSettings: JacocoReportSettings = JacocoReportSettings(
-  //title = s"spark-partition-sizing Jacoco Report - ${scalaVersion.value}",
+lazy val jacocoReportCommonSettings: JacocoReportSettings = JacocoReportSettings(
+  //title = s"spark-partition-sizing Jacoco Report - ${scalaVersion.value}", //TODO
   title = s"spark-partition-sizing Jacoco Report",
   formats = Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML)
 )
@@ -66,10 +60,10 @@ lazy val commonJacocoExcludes: Seq[String] = Seq(
   //    "za.co.absa.spark.commons.utils.ExplodeTools" // class only
 )
 
-lazy val `sparkPartitionSizing` = (projectMatrix in file("."))
+lazy val `sparkPartitionSizing` = (projectMatrix in file("spark-partition-sizing"))
   .settings(commonSettings: _*)
   .settings(
-    jacocoReportSettings := jacocoSparkCommonsReportSettings,
+    jacocoReportSettings := jacocoReportCommonSettings,
     jacocoExcludes := commonJacocoExcludes)
   .sparkRow(SparkVersionAxis(spark2), scalaVersions = Seq(scala211, scala212))
   .sparkRow(SparkVersionAxis(spark3), scalaVersions = Seq(scala212))
