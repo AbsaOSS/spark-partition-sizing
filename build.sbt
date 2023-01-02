@@ -14,15 +14,12 @@
  */
 
 ThisBuild / organization := "za.co.absa"
-ThisBuild / name         := "spark-partition-sizing"
-
 
 lazy val scala211 = "2.11.12"
 lazy val scala212 = "2.12.12"
 lazy val spark2   = "2.4.7"
 lazy val spark3   = "3.2.2"
 
-import Dependencies._
 import SparkVersionAxis._
 import com.github.sbt.jacoco.report.JacocoReportSettings
 
@@ -37,19 +34,9 @@ lazy val commonSettings = Seq(
   Test / parallelExecution := false
 )
 
-//TODO
-//lazy val printSparkScalaVersion = taskKey[Unit]("Print Spark and Scala versions spark-commons is being built for.")
-//ThisBuild / printSparkScalaVersion := {
-//  val log = streams.value.log
-//  log.info(s"Building with Spark ${sparkVersion}, Scala ${scalaVersion.value}")
-//}
-
-//++libraryDependencies ++= dependencies("2.4.7") //TODO
-
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
 lazy val jacocoReportCommonSettings: JacocoReportSettings = JacocoReportSettings(
-  //title = s"spark-partition-sizing Jacoco Report - ${scalaVersion.value}", //TODO
   title = s"spark-partition-sizing Jacoco Report",
   formats = Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML)
 )

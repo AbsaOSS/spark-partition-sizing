@@ -16,7 +16,7 @@
 import sbt._
 import sbt.Keys._
 import sbt.internal.ProjectMatrix
-import sbtprojectmatrix.ProjectMatrixKeys._
+import com.github.sbt.jacoco.report.JacocoReportSettings
 import Dependencies._
 
 case class SparkVersionAxis(sparkVersion: String) extends VirtualAxis.WeakAxis {
@@ -43,16 +43,16 @@ object SparkVersionAxis {
             libraryDependencies ++= dependencies(sparkAxis.sparkVersion)
         ).settings(settings: _*)
       )
-//    TODO
-//    def sparkRow(sparkAxis: SparkVersionAxis, scalaVersion: String, settings: Def.SettingsDefinition*)(implicit : ProjectMatrix =
-//      p.customRow(
-//        scalaVersions = Seq(scalaVersion),
-//        axisValues = Seq(sparkAxis, VirtualAxis.jvm),
-//        _.settings(
-//          moduleName := camelCaseToLowerDashCase(name.value + sparkAxis.directorySuffix),
-//          libraryDependencies ++= dependencies(sparkAxis.sparkVersion)
-//        ).settings(settings: _*)
-//      )
+
+    def sparkRow(sparkAxis: SparkVersionAxis, scalaVersion: String, settings: Def.SettingsDefinition*)
+                (implicit jacocoReportSettings: JacocoReportSettings): ProjectMatrix =
+      p.customRow(
+        scalaVersions = Seq(scalaVersion),
+        axisValues = Seq(sparkAxis, VirtualAxis.jvm),
+        _.settings(
+          moduleName := camelCaseToLowerDashCase(name.value + sparkAxis.directorySuffix),
+          libraryDependencies ++= dependencies(sparkAxis.sparkVersion)
+        ).settings(settings: _*)
+      )
   }
 }
-
