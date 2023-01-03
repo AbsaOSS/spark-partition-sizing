@@ -17,7 +17,7 @@
 package za.co.absa.spark.partition.sizing.sizer
 
 import org.scalatest.funsuite.AnyFunSuite
-import za.co.absa.spark.partition.sizing.DummyDatasets
+import za.co.absa.spark.partition.sizing.{DummyDatasets, ResourceData}
 
 class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
 
@@ -36,7 +36,7 @@ class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
   test("test deeper nested dataframe") {
     val inputDf = spark.read
       .schema(testCaseSchema)
-      .json(getClass.getResource(nestedFilePath).getPath)
+      .json(relativeToResourcePath(nestedFilePath))
 
     assert(sizer.performRowSizing(inputDf) < 3000)
     //the number of samples should be higher than 0

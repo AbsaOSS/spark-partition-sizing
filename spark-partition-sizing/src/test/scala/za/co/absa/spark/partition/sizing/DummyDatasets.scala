@@ -22,7 +22,7 @@ import za.co.absa.spark.commons.test.SparkTestBase
 
 import scala.collection.immutable
 
-trait DummyDatasets extends SparkTestBase {
+trait DummyDatasets extends SparkTestBase with ResourceData {
   import spark.implicits._
 
   val simpleDfNames: immutable.Seq[String] = List("a", "b")
@@ -38,8 +38,6 @@ trait DummyDatasets extends SparkTestBase {
     (9, "c", 0L, 8.0)).toDF(simpleMultiDfNames: _*)
   val arrayDf: DataFrame = List((1,"sds", List()), (5, "asfdbfnfgnfgg", List(4,5,6,7,8))).toDF(nestedDfNames: _*)
   val structDf: DataFrame = List((1,"sds", (12,"zzzz")), (5, "asfdbfnfgnfgg", (55,""))).toDF(nestedDfNames: _*)
-
-  val nestedFilePath = "/nested_data/nestedDf.json"
 
   protected val testCaseSchema: StructType = StructType(
     Array(

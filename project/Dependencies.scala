@@ -24,8 +24,9 @@ object Dependencies {
   def dependencies(sparkVersion: String): Seq[ModuleID] = Seq(
     "org.apache.spark"    %% "spark-core"         % sparkVersion  % "provided",
     "org.apache.spark"    %% "spark-sql"          % sparkVersion  % "provided",
-    "za.co.absa"          %% "spark-commons-test" % "0.2.0"       % Test,
-    "org.scalatest"       %% "scalatest"          % "3.2.9"       % Test
+    "org.scalatest"       %% "scalatest"          % "3.2.9"       % Test,
+    "za.co.absa.commons"  %% "commons"            % "1.3.2"       % Test,
+    "za.co.absa"          %% "spark-commons-test" % "0.2.0"       % Test
   )
 
 }

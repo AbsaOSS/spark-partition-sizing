@@ -17,7 +17,7 @@
 package za.co.absa.spark.partition.sizing.sizer
 
 import org.scalatest.funsuite.AnyFunSuite
-import za.co.absa.spark.partition.sizing.DummyDatasets
+import za.co.absa.spark.partition.sizing.{DummyDatasets, ResourceData}
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes.DefaultDataTypeSizes
 
@@ -34,7 +34,7 @@ class FromSchemaSizerTest extends AnyFunSuite with DummyDatasets {
   test("test deeper nested dataframe") {
     val inputDf = spark.read
       .schema(testCaseSchema)
-      .json(getClass.getResource(nestedFilePath).getPath)
+      .json(relativeToResourcePath(nestedFilePath))
 
     assert(new FromDataframeSizer().performRowSizing(inputDf) < 1500)
   }

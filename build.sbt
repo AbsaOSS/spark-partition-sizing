@@ -18,7 +18,8 @@ ThisBuild / organization := "za.co.absa"
 lazy val scala211 = "2.11.12"
 lazy val scala212 = "2.12.12"
 lazy val spark2   = "2.4.7"
-lazy val spark3   = "3.2.2"
+lazy val spark3_2 = "3.2.3"
+lazy val spark3_3 = "3.3.1"
 
 import SparkVersionAxis._
 import com.github.sbt.jacoco.report.JacocoReportSettings
@@ -29,7 +30,7 @@ ThisBuild / crossScalaVersions := Seq(scala211, scala212)
 ThisBuild / versionScheme := Some("early-semver")
 
 lazy val commonSettings = Seq(
-  scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"/*, "-Xfatal-warnings"*/), //TODO
+  scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"/*, "-Xfatal-warnings"*/),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint"),
   Test / parallelExecution := false
 )
@@ -47,10 +48,18 @@ lazy val commonJacocoExcludes: Seq[String] = Seq(
   //    "za.co.absa.spark.commons.utils.ExplodeTools" // class only
 )
 
+lazy val parent = (project in file("."))
+  .aggregate(sparkPartitionSizing.projectRefs: _*)
+  .settings(
+    name := "spark-partition-sizing",
+    publish / skip := true
+  )
+
 lazy val `sparkPartitionSizing` = (projectMatrix in file("spark-partition-sizing"))
   .settings(commonSettings: _*)
   .settings(
     jacocoReportSettings := jacocoReportCommonSettings,
     jacocoExcludes := commonJacocoExcludes)
   .sparkRow(SparkVersionAxis(spark2), scalaVersions = Seq(scala211, scala212))
-  .sparkRow(SparkVersionAxis(spark3), scalaVersions = Seq(scala212))
+  .sparkRow(SparkVersionAxis(spark3_2), scalaVersions = Seq(scala212))
+  .sparkRow(SparkVersionAxis(spark3_3), scalaVersions = Seq(scala212))
