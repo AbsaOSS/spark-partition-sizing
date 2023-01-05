@@ -17,7 +17,7 @@
 package za.co.absa.spark.partition.sizing.sizer
 
 import org.scalatest.funsuite.AnyFunSuite
-import za.co.absa.spark.partition.sizing.{DummyDatasets, ResourceData}
+import za.co.absa.spark.partition.sizing.DummyDatasets
 
 class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
 

@@ -43,9 +43,9 @@ lazy val jacocoReportCommonSettings: JacocoReportSettings = JacocoReportSettings
 )
 
 lazy val commonJacocoExcludes: Seq[String] = Seq(
-  // exclude example
-  //    "za.co.absa.spark.commons.utils.JsonUtils*", // class and related objects
-  //    "za.co.absa.spark.commons.utils.ExplodeTools" // class only
+// exclude example
+//  "za.co.absa.spark.partition.sizing.types.DataTypeSizes*", // class and related objects
+//  "za.co.absa.spark.partition.sizing.DataFramePartitioner" // class only
 )
 
 lazy val parent = (project in file("."))
