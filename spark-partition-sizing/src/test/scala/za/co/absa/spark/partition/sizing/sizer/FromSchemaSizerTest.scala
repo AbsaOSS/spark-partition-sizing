@@ -16,12 +16,15 @@
 
 package za.co.absa.spark.partition.sizing.sizer
 
+import org.apache.spark.sql.DataFrame
+import org.scalatest.concurrent.Eventually
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.spark.partition.sizing.DummyDatasets
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes.DefaultDataTypeSizes
+import scala.concurrent.duration.DurationInt
 
-class FromSchemaSizerTest extends AnyFunSuite with DummyDatasets {
+class FromSchemaSizerTest extends AnyFunSuite with DummyDatasets with Eventually {
 
   private implicit val defaultSizes: DataTypeSizes = DefaultDataTypeSizes
 
@@ -32,11 +35,18 @@ class FromSchemaSizerTest extends AnyFunSuite with DummyDatasets {
   }
 
   test("test deeper nested dataframe") {
-    val inputDf = spark.read
+    def readInput(): DataFrame = spark.read
       .schema(testCaseSchema)
       .json(relativeToResourcePath(nestedFilePath))
 
-    assert(new FromDataframeSizer().performRowSizing(inputDf) < 1500)
+    eventually(timeout(scaled(1.seconds)), interval(scaled(500.millis))) {
+      val inputDf = readInput()
+      assert(!inputDf.isEmpty, "input should not be empty") // eventually will retry on this if empty
+
+      assert(new FromDataframeSizer().performRowSizing(inputDf) < 1500)
+      //the number of samples should be higher than 0
+      assert(new FromDataframeSizer().performRowSizing(inputDf) > 0)
+    }
   }
 
 }
