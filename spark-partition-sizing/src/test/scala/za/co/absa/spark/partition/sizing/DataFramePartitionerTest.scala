@@ -24,43 +24,9 @@ import za.co.absa.spark.partition.sizing.sizer.{FromDataframeSampleSizer, FromDa
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes.DefaultDataTypeSizes
 
-class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase with ResourceData {
+class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase with DummyDatasets {
 
   import DataFramePartitioner._
-
-  private val testCaseSchema = StructType(
-    Array(
-      StructField("id", LongType),
-      StructField("key1", LongType),
-      StructField("key2", LongType),
-      StructField("struct1", StructType(Array(
-        StructField("key3", IntegerType),
-        StructField("key4", IntegerType)
-      ))),
-      StructField("struct2", StructType(Array(
-        StructField("inner1", StructType(Array(
-          StructField("key5", LongType),
-          StructField("key6", LongType),
-          StructField("skey1", StringType)
-        )))
-      ))),
-      StructField("array1", ArrayType(StructType(Array(
-        StructField("key7", LongType),
-        StructField("key8", LongType),
-        StructField("skey2", StringType)
-      )))),
-      StructField("array2", ArrayType(StructType(Array(
-        StructField("key2", LongType),
-        StructField("inner2", ArrayType(StructType(Array(
-          StructField("key9", LongType),
-          StructField("key10", LongType),
-          StructField("struct3", StructType(Array(
-            StructField("k1", IntegerType),
-            StructField("k2", IntegerType)
-          )))
-        ))))
-      ))))
-    ))
 
   private implicit val defaultSizes: DataTypeSizes = DefaultDataTypeSizes
 
@@ -95,30 +61,31 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase with Resou
   }
 
   test("Small nested dataset") {
-    val df = spark.read.schema(testCaseSchema).json(relativeToResourcePath(nestedFilePath))
+    readDfFromJsonWhenReadyAndThen(nestedCaseSchema, nestedFilePath) { df =>
 
-    val max2RecordsPerPart = df.repartitionByRecordCount(2)
-    assertResult(4)(max2RecordsPerPart.rdd.partitions.length)
-    val max4RecordsPerPArt = df.repartitionByRecordCount(4)
-    assertResult(2)(max4RecordsPerPArt.rdd.partitions.length)
+      val max2RecordsPerPart = df.repartitionByRecordCount(2)
+      assertResult(4)(max2RecordsPerPart.rdd.partitions.length)
+      val max4RecordsPerPArt = df.repartitionByRecordCount(4)
+      assertResult(2)(max4RecordsPerPArt.rdd.partitions.length)
 
-    val min = Some(200L)
-    val max = Some(2000L)
+      val min = Some(200L)
+      val max = Some(2000L)
 
-    val result2 = df.repartitionByPlanSize(min, max)
-    val result3 = df.repartitionByDesiredSize(fromDataframeRecordSizer)(min, max)
-    val result4 = df.repartitionByDesiredSize(fromSchemaRecordSizer)(min, max)
-    val result5 = df.repartitionByDesiredSize(fromDataframe2SampleSizer)(min, max)
-    val result6 = df.repartitionByDesiredSize(fromDataframe4SampleSizer)(min, max)
-    val result7 = df.repartitionByDesiredSize(fromDataframe6SampleSizer)(min, max)
-    assertResult(2)(result2.rdd.partitions.length)
-    assertResult(5)(result3.rdd.partitions.length)
-    assertResult(2)(result4.rdd.partitions.length)
-    assert(result5.rdd.partitions.length >= 1)
-    assert(result6.rdd.partitions.length >= 1)
-    assert(result7.rdd.partitions.length >= 1)
+      val result2 = df.repartitionByPlanSize(min, max)
+      val result3 = df.repartitionByDesiredSize(fromDataframeRecordSizer)(min, max)
+      val result4 = df.repartitionByDesiredSize(fromSchemaRecordSizer)(min, max)
+      val result5 = df.repartitionByDesiredSize(fromDataframe2SampleSizer)(min, max)
+      val result6 = df.repartitionByDesiredSize(fromDataframe4SampleSizer)(min, max)
+      val result7 = df.repartitionByDesiredSize(fromDataframe6SampleSizer)(min, max)
+      assertResult(2)(result2.rdd.partitions.length)
+      assertResult(5)(result3.rdd.partitions.length)
+      assertResult(2)(result4.rdd.partitions.length)
+      assert(result5.rdd.partitions.length >= 1)
+      assert(result6.rdd.partitions.length >= 1)
+      assert(result7.rdd.partitions.length >= 1)
 
-    assertThrows[IllegalArgumentException](df.repartitionByDesiredSize(fromSchemaSummariesSizer)(min, max))
+      assertThrows[IllegalArgumentException](df.repartitionByDesiredSize(fromSchemaSummariesSizer)(min, max))
+    }
   }
 
 }
