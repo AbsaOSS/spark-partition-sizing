@@ -16,9 +16,8 @@
 
 package za.co.absa.spark.partition.sizing
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.{ArrayType, IntegerType, LongType, StringType, StructField, StructType}
-import org.scalatest.Assertion
 import org.scalatest.concurrent.Eventually
 import za.co.absa.spark.commons.test.SparkTestBase
 

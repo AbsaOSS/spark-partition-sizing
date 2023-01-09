@@ -16,13 +16,12 @@
 
 package za.co.absa.spark.partition.sizing.sizer
 
-import org.scalatest.concurrent.Eventually
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.spark.partition.sizing.DummyDatasets
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes.DefaultDataTypeSizes
 
-class FromSchemaSizerTest extends AnyFunSuite with DummyDatasets with Eventually {
+class FromSchemaSizerTest extends AnyFunSuite with DummyDatasets {
 
   private implicit val defaultSizes: DataTypeSizes = DefaultDataTypeSizes
 

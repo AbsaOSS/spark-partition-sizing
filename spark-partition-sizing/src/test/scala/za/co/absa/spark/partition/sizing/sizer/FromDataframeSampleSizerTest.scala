@@ -16,11 +16,10 @@
 
 package za.co.absa.spark.partition.sizing.sizer
 
-import org.scalatest.concurrent.Eventually
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.spark.partition.sizing.DummyDatasets
 
-class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets with Eventually {
+class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
 
   private val sizer = new FromDataframeSampleSizer(2)
   test("test dummy dataframes") {

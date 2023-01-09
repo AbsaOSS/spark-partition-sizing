@@ -16,11 +16,10 @@
 
 package za.co.absa.spark.partition.sizing.sizer
 
-import org.scalatest.concurrent.Eventually
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.spark.partition.sizing.DummyDatasets
 
-class FromDataframeSizerTest extends AnyFunSuite with DummyDatasets with Eventually {
+class FromDataframeSizerTest extends AnyFunSuite with DummyDatasets {
 
   test("test dummy dataframes") {
     assert(new FromDataframeSizer().performRowSizing(simpleDf) < 80)
