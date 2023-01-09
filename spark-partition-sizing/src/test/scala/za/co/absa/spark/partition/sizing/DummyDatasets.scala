@@ -16,7 +16,7 @@
 
 package za.co.absa.spark.partition.sizing
 
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.spark.sql.types.{ArrayType, IntegerType, LongType, StringType, StructField, StructType}
 import org.scalatest.Assertion
 import org.scalatest.concurrent.Eventually
@@ -97,14 +97,14 @@ trait DummyDatasets extends SparkTestBase with Eventually {
 
   /**
    * Same as za.co.absa.spark.partition.sizing.DummyDatasets#readNestedDf(), but makes sure that the data is ready (non-empty)
+   *
    * @return
    */
-  def readDfFromJsonWhenReadyAndThen(schema: StructType, jsonRelativePath: String)(fn: DataFrame  => Assertion): Assertion = {
+  def readDfFromJsonWhenReady(schema: StructType, jsonRelativePath: String): DataFrame = {
     eventually(timeout(scaled(2.seconds)), interval(scaled(50.millis))) {
       val df = readDfFromJson(schema, jsonRelativePath)
       assert(!df.isEmpty, "input should not be empty") // eventually will retry on this if empty
-
-      fn(df)
+      df
     }
   }
 

@@ -35,11 +35,10 @@ class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets with E
   }
 
   test("test deeper nested dataframe") {
-    readDfFromJsonWhenReadyAndThen(nestedCaseSchema, nestedFilePath) { inputDf =>
-      assert(sizer.performRowSizing(inputDf) < 3000)
-      //the number of samples should be higher than 0
-      assert(sizer.performRowSizing(inputDf) > 0)
-    }
+    val inputDf = readDfFromJsonWhenReady(nestedCaseSchema, nestedFilePath)
+    assert(sizer.performRowSizing(inputDf) < 3000)
+    //the number of samples should be higher than 0
+    assert(sizer.performRowSizing(inputDf) > 0)
   }
 
 }

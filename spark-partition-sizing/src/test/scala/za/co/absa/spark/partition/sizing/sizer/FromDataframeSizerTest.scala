@@ -29,11 +29,10 @@ class FromDataframeSizerTest extends AnyFunSuite with DummyDatasets with Eventua
   }
 
   test("test deeper nested dataframe") {
-    readDfFromJsonWhenReadyAndThen(nestedCaseSchema, nestedFilePath) { inputDf =>
-      assert(new FromDataframeSizer().performRowSizing(inputDf) < 1500)
-      //the number of samples should be higher than 0
-      assert(new FromDataframeSizer().performRowSizing(inputDf) > 0)
-    }
+    val inputDf = readDfFromJsonWhenReady(nestedCaseSchema, nestedFilePath)
+    assert(new FromDataframeSizer().performRowSizing(inputDf) < 1500)
+    //the number of samples should be higher than 0
+    assert(new FromDataframeSizer().performRowSizing(inputDf) > 0)
   }
 
 }
