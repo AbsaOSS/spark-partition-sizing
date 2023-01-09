@@ -24,43 +24,9 @@ import za.co.absa.spark.partition.sizing.sizer.{FromDataframeSampleSizer, FromDa
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes.DefaultDataTypeSizes
 
-class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase with ResourceData {
+class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase with DummyDatasets {
 
   import DataFramePartitioner._
-
-  private val testCaseSchema = StructType(
-    Array(
-      StructField("id", LongType),
-      StructField("key1", LongType),
-      StructField("key2", LongType),
-      StructField("struct1", StructType(Array(
-        StructField("key3", IntegerType),
-        StructField("key4", IntegerType)
-      ))),
-      StructField("struct2", StructType(Array(
-        StructField("inner1", StructType(Array(
-          StructField("key5", LongType),
-          StructField("key6", LongType),
-          StructField("skey1", StringType)
-        )))
-      ))),
-      StructField("array1", ArrayType(StructType(Array(
-        StructField("key7", LongType),
-        StructField("key8", LongType),
-        StructField("skey2", StringType)
-      )))),
-      StructField("array2", ArrayType(StructType(Array(
-        StructField("key2", LongType),
-        StructField("inner2", ArrayType(StructType(Array(
-          StructField("key9", LongType),
-          StructField("key10", LongType),
-          StructField("struct3", StructType(Array(
-            StructField("k1", IntegerType),
-            StructField("k2", IntegerType)
-          )))
-        ))))
-      ))))
-    ))
 
   private implicit val defaultSizes: DataTypeSizes = DefaultDataTypeSizes
 
@@ -95,7 +61,7 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase with Resou
   }
 
   test("Small nested dataset") {
-    val df = spark.read.schema(testCaseSchema).json(relativeToResourcePath(nestedFilePath))
+    val df = readDfFromJsonWhenReady(nestedCaseSchema, nestedFilePath)
 
     val max2RecordsPerPart = df.repartitionByRecordCount(2)
     assertResult(4)(max2RecordsPerPart.rdd.partitions.length)
@@ -120,5 +86,6 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase with Resou
 
     assertThrows[IllegalArgumentException](df.repartitionByDesiredSize(fromSchemaSummariesSizer)(min, max))
   }
+
 
 }
