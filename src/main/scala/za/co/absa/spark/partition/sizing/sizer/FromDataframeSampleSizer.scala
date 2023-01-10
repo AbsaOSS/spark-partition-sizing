@@ -48,7 +48,7 @@ class FromDataframeSampleSizer(sampleSize: Int = 1) extends RecordSizer {
     if ((sampleSize <= 0) || (df.isEmpty)) {
       0L
     } else {
-      val sampleFraction =computeSampleFraction(df, dfRecordCount)
+      val sampleFraction = computeSampleFraction(df, dfRecordCount)
       val sample = acquireSample(df, sampleFraction)
       val sampleSizes: Array[ByteSize] = sample.collect().map(RowSizer.rowSize)
       ceilDiv(sampleSizes.sum, sampleSizes.length)
