@@ -18,11 +18,13 @@ package za.co.absa.spark.partition.sizing
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.{ArrayType, IntegerType, LongType, StringType, StructField, StructType}
+import org.scalatest.concurrent.Eventually
 import za.co.absa.spark.commons.test.SparkTestBase
 
+import scala.concurrent.duration.DurationInt
 import scala.collection.immutable
 
-trait DummyDatasets extends SparkTestBase {
+trait DummyDatasets extends SparkTestBase with Eventually {
   import spark.implicits._
 
   val simpleDfNames: immutable.Seq[String] = List("a", "b")
@@ -39,9 +41,7 @@ trait DummyDatasets extends SparkTestBase {
   val arrayDf: DataFrame = List((1,"sds", List()), (5, "asfdbfnfgnfgg", List(4,5,6,7,8))).toDF(nestedDfNames: _*)
   val structDf: DataFrame = List((1,"sds", (12,"zzzz")), (5, "asfdbfnfgnfgg", (55,""))).toDF(nestedDfNames: _*)
 
-  val nestedFilePath = "/nested_data/nestedDf.json"
-
-  protected val testCaseSchema: StructType = StructType(
+  protected val nestedCaseSchema: StructType = StructType(
     Array(
       StructField("id", LongType),
       StructField("key1", LongType),
@@ -74,5 +74,37 @@ trait DummyDatasets extends SparkTestBase {
         ))))
       ))))
     ))
+
+  val nestedFilePath: String = "/nested_data/nestedDf.json"
+
+  private def relativeToResourcePath(relativePath: String): String = getClass.getResource(relativePath).getFile
+
+  /**
+   * Reads dataframe from `nestedFilePath` with `nestedCaseSchema` schema
+   * @return
+   */
+
+  /**
+   * Read a testing DataFrame from a json by relative path with a schema
+   * @param schema schema to use
+   * @param jsonRelativePath relative path of a json file to load
+   * @return df
+   */
+  def readDfFromJson(schema: StructType, jsonRelativePath: String): DataFrame = spark.read
+    .schema(schema)
+    .json(relativeToResourcePath(jsonRelativePath))
+
+  /**
+   * Same as za.co.absa.spark.partition.sizing.DummyDatasets#readNestedDf(), but makes sure that the data is ready (non-empty)
+   *
+   * @return
+   */
+  def readDfFromJsonWhenReady(schema: StructType, jsonRelativePath: String): DataFrame = {
+    eventually(timeout(scaled(2.seconds)), interval(scaled(50.millis))) {
+      val df = readDfFromJson(schema, jsonRelativePath)
+      assert(!df.isEmpty, "input should not be empty") // eventually will retry on this if empty
+      df
+    }
+  }
 
 }

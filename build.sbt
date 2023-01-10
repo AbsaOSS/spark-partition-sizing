@@ -14,50 +14,52 @@
  */
 
 ThisBuild / organization := "za.co.absa"
-ThisBuild / name         := "spark-partition-sizing"
 
 lazy val scala211 = "2.11.12"
 lazy val scala212 = "2.12.12"
+lazy val spark2   = "2.4.7"
+lazy val spark3_2 = "3.2.3"
+lazy val spark3_3 = "3.3.1"
 
-import Dependencies._
+import SparkVersionAxis._
+import com.github.sbt.jacoco.report.JacocoReportSettings
 
-ThisBuild / crossScalaVersions := Seq(scala211, scala212)
 ThisBuild / scalaVersion := scala211
+ThisBuild / crossScalaVersions := Seq(scala211, scala212)
 
-import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+ThisBuild / versionScheme := Some("early-semver")
 
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommand("publishSigned"),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
+lazy val commonSettings = Seq(
+  scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature"/*, "-Xfatal-warnings"*/),
+  javacOptions ++= Seq("-source", "1.8", "-target", "1.8", "-Xlint"),
+  Test / parallelExecution := false
 )
-
-lazy val printSparkScalaVersion = taskKey[Unit]("Print Spark and Scala versions spark-commons is being built for.")
-ThisBuild / printSparkScalaVersion := {
-  val log = streams.value.log
-  log.info(s"Building with Spark ${sparkVersion}, Scala ${scalaVersion.value}")
-}
-
-libraryDependencies ++= dependencies
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value
 
-// JaCoCo code coverage
-Test / jacocoReportSettings := JacocoReportSettings(
-  title = s"spark-partition-sizing Jacoco Report - ${scalaVersion.value}",
+lazy val jacocoReportCommonSettings: JacocoReportSettings = JacocoReportSettings(
+  title = s"spark-partition-sizing Jacoco Report",
   formats = Seq(JacocoReportFormats.HTML, JacocoReportFormats.XML)
 )
 
+lazy val commonJacocoExcludes: Seq[String] = Seq(
 // exclude example
-Test / jacocoExcludes := Seq(
 //  "za.co.absa.spark.partition.sizing.types.DataTypeSizes*", // class and related objects
 //  "za.co.absa.spark.partition.sizing.DataFramePartitioner" // class only
 )
+
+lazy val parent = (project in file("."))
+  .aggregate(sparkPartitionSizing.projectRefs: _*)
+  .settings(
+    name := "spark-partition-sizing",
+    publish / skip := true
+  )
+
+lazy val `sparkPartitionSizing` = (projectMatrix in file("spark-partition-sizing"))
+  .settings(commonSettings: _*)
+  .settings(
+    jacocoReportSettings := jacocoReportCommonSettings,
+    jacocoExcludes := commonJacocoExcludes)
+  .sparkRow(SparkVersionAxis(spark2), scalaVersions = Seq(scala211, scala212))
+  .sparkRow(SparkVersionAxis(spark3_2), scalaVersions = Seq(scala212))
+  .sparkRow(SparkVersionAxis(spark3_3), scalaVersions = Seq(scala212))

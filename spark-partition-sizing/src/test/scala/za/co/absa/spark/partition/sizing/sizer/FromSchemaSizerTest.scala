@@ -18,21 +18,24 @@ package za.co.absa.spark.partition.sizing.sizer
 
 import org.scalatest.funsuite.AnyFunSuite
 import za.co.absa.spark.partition.sizing.DummyDatasets
+import za.co.absa.spark.partition.sizing.types.DataTypeSizes
+import za.co.absa.spark.partition.sizing.types.DataTypeSizes.DefaultDataTypeSizes
 
-class FromDataframeSizerTest extends AnyFunSuite with DummyDatasets {
+class FromSchemaSizerTest extends AnyFunSuite with DummyDatasets {
+
+  private implicit val defaultSizes: DataTypeSizes = DefaultDataTypeSizes
 
   test("test dummy dataframes") {
-    assert(new FromDataframeSizer().performRowSizing(simpleDf) < 80)
+    assert(new FromSchemaSizer().performRowSizing(simpleDf) < 80)
     assert(new FromDataframeSizer().performRowSizing(arrayDf) < 170)
     assert(new FromDataframeSizer().performRowSizing(structDf) < 140)
   }
 
   test("test deeper nested dataframe") {
-    val inputDf = spark.read
-      .schema(testCaseSchema)
-      .json(getClass.getResource(nestedFilePath).getPath)
-
+    val inputDf = readDfFromJsonWhenReady(nestedCaseSchema, nestedFilePath)
     assert(new FromDataframeSizer().performRowSizing(inputDf) < 1500)
+    //the number of samples should be higher than 0
+    assert(new FromDataframeSizer().performRowSizing(inputDf) > 0)
   }
 
 }

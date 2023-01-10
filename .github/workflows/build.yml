@@ -17,23 +17,14 @@ name: Build
 
 on:
   push:
-    branches: [ main, develop, master ]
+    branches: [ master ]
   pull_request:
-    branches: [ master, develop ]
+    branches: [ master ]
     types: [ assigned, opened, synchronize, reopened, labeled ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        scala: [2.11.12, 2.12.15]
-        spark: [2.4.7, 3.2.1]
-        exclude:
-          - scala: 2.11.12
-            spark: 3.2.1
-    name: Test Spark ${{matrix.spark}} on Scala ${{matrix.scala}}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -43,4 +34,4 @@ jobs:
         with:
           java-version: "adopt@1.8"
       - name: Build and run tests
-        run: sbt ++${{matrix.scala}} test -DSPARK_VERSION=${{matrix.spark}}
+        run: sbt test doc
