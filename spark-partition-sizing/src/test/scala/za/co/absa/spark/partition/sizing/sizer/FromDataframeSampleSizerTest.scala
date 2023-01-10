@@ -34,10 +34,7 @@ class FromDataframeSampleSizerTest extends AnyFunSuite with DummyDatasets {
   }
 
   test("test deeper nested dataframe") {
-    val inputDf = spark.read
-      .schema(testCaseSchema)
-      .json(getClass.getResource(nestedFilePath).getPath)
-
+    val inputDf = readDfFromJsonWhenReady(nestedCaseSchema, nestedFilePath)
     assert(sizer.performRowSizing(inputDf) < 3000)
     //the number of samples should be higher than 0
     assert(sizer.performRowSizing(inputDf) > 0)

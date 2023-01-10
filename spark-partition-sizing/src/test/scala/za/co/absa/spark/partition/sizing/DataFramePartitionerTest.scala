@@ -18,48 +18,15 @@ package za.co.absa.spark.partition.sizing
 
 import org.apache.spark.sql.types.{ArrayType, IntegerType, LongType, StringType, StructField, StructType}
 import org.scalatest.funsuite.AnyFunSuite
+import za.co.absa.commons.io.TempDirectory
 import za.co.absa.spark.commons.test.SparkTestBase
 import za.co.absa.spark.partition.sizing.sizer.{FromDataframeSampleSizer, FromDataframeSizer, FromSchemaSizer, FromSchemaWithSummariesSizer}
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes.DefaultDataTypeSizes
 
-class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
+class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase with DummyDatasets {
 
   import DataFramePartitioner._
-
-  private val testCaseSchema = StructType(
-    Array(
-      StructField("id", LongType),
-      StructField("key1", LongType),
-      StructField("key2", LongType),
-      StructField("struct1", StructType(Array(
-        StructField("key3", IntegerType),
-        StructField("key4", IntegerType)
-      ))),
-      StructField("struct2", StructType(Array(
-        StructField("inner1", StructType(Array(
-          StructField("key5", LongType),
-          StructField("key6", LongType),
-          StructField("skey1", StringType)
-        )))
-      ))),
-      StructField("array1", ArrayType(StructType(Array(
-        StructField("key7", LongType),
-        StructField("key8", LongType),
-        StructField("skey2", StringType)
-      )))),
-      StructField("array2", ArrayType(StructType(Array(
-        StructField("key2", LongType),
-        StructField("inner2", ArrayType(StructType(Array(
-          StructField("key9", LongType),
-          StructField("key10", LongType),
-          StructField("struct3", StructType(Array(
-            StructField("k1", IntegerType),
-            StructField("k2", IntegerType)
-          )))
-        ))))
-      ))))
-    ))
 
   private implicit val defaultSizes: DataTypeSizes = DefaultDataTypeSizes
 
@@ -71,9 +38,10 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
   val fromSchemaSummariesSizer = new FromSchemaWithSummariesSizer()
 
   test("Empty dataset") {
+    val tempFolder = TempDirectory().asString
     val schema = new StructType()
       .add("not_important", StringType, nullable = true)
-    val df = spark.read.schema(schema).parquet("src/test/resources/data/empty")
+    val df = spark.read.schema(schema).parquet(tempFolder)
     assertResult(0)(df.rdd.getNumPartitions)
     val result1 = df.repartitionByPlanSize(None, Option(2))
 
@@ -93,7 +61,7 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
   }
 
   test("Small nested dataset") {
-    val df = spark.read.schema(testCaseSchema).json("src/test/resources/nested_data")
+    val df = readDfFromJsonWhenReady(nestedCaseSchema, nestedFilePath)
 
     val max2RecordsPerPart = df.repartitionByRecordCount(2)
     assertResult(4)(max2RecordsPerPart.rdd.partitions.length)
@@ -118,5 +86,6 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
 
     assertThrows[IllegalArgumentException](df.repartitionByDesiredSize(fromSchemaSummariesSizer)(min, max))
   }
+
 
 }
