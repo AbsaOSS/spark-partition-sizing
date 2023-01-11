@@ -24,7 +24,7 @@ import za.co.absa.spark.partition.sizing.sizer.{FromDataframeSampleSizer, FromDa
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes
 import za.co.absa.spark.partition.sizing.types.DataTypeSizes.DefaultDataTypeSizes
 
-class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
+class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase with DummyDatasets {
 
   import DataFramePartitioner._
 
@@ -61,7 +61,7 @@ class DataFramePartitionerTest extends AnyFunSuite with SparkTestBase {
   }
 
   test("Small nested dataset") {
-    val df = spark.read.schema(testCaseSchema).json("src/test/resources/nested_data")
+    val df = readDfFromJsonWhenReady(nestedCaseSchema, nestedFilePath)
 
     val max2RecordsPerPart = df.repartitionByRecordCount(2)
     assertResult(4)(max2RecordsPerPart.rdd.partitions.length)
