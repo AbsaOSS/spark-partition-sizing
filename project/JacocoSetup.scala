@@ -27,7 +27,7 @@ object JacocoSetup {
 
   def jacocoSettings(sparkVersion: String, scalaVersion: String): JacocoReportSettings = {
     val utcDateTime = ZonedDateTime.now.withZoneSameInstant(ZoneId.of("UTC"))
-    val now = s"as of ${DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm zz").format(utcDateTime)}"
+    val now = s"as of ${DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm Z z").format(utcDateTime)}"
     jacocoReportCommonSettings.withTitle(s"Jacoco Report on `spark-partition-sizing` for spark:$sparkVersion - scala:$scalaVersion [$now]")
   }
 
