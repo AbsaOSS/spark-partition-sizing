@@ -22,7 +22,7 @@ import com.github.sbt.jacoco.JacocoKeys.{jacocoExcludes, jacocoReportSettings}
 
 case class SparkVersionAxis(sparkVersion: String) extends VirtualAxis.WeakAxis {
   val sparkVersionMinor: String = sparkVersion.split("\\.", 3).take(2).mkString(".")
-  override val directorySuffix = s"-spark$sparkVersionMinor"
+  override val directorySuffix = s"-spark${sparkVersionMinor}"
   override val idSuffix: String = directorySuffix.replaceAll("""\W+""", "_")
 }
 

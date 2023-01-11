@@ -25,28 +25,33 @@ import za.co.absa.spark.partition.sizing.utils.RowSizer
 @Experimental
 class FromDataframeSampleSizer(sampleSize: Int = 1) extends RecordSizer {
 
-  override def performRowSizing(df: DataFrame, dfRecordCount: Option[Int] = None): ByteSize = {
-    if(df.isEmpty) {
+  private def computeSampleFraction(df: DataFrame, dfRecordCount: Option[Long]): Double = {
+    val rowCount: ByteSize = dfRecordCount match {
+      case Some(x) => x
+      case None => df.count()
+    }
+    val howManyToTake: ByteSize = if (rowCount > sampleSize) sampleSize else rowCount
+    1.0D * howManyToTake / rowCount
+  }
+
+  private def acquireSample(df: DataFrame, fraction: Double): DataFrame = {
+    val sample = df.sample(fraction)
+
+    if (sample.isEmpty) {
+      df.limit(1)
+    } else {
+      sample
+    }
+  }
+
+  override def performRowSizing(df: DataFrame, dfRecordCount: Option[Long] = None): ByteSize = {
+    if ((sampleSize <= 0) || (df.isEmpty)) {
       0L
     } else {
-      val rowCount: ByteSize = dfRecordCount match {
-        case Some(x) => x
-        case None => df.count()
-      }
-
-      val howManyToTake: ByteSize = if (rowCount > sampleSize) sampleSize else rowCount
-
-      // number of samples is passed to the limit parameter, which ensures more than 0 samples will be returned
-      val sampleSizes: Array[ByteSize] = df.sample(1.0 * howManyToTake / rowCount)
-        .limit(sampleSize)
-        .collect()
-        .map(RowSizer.rowSize)
-
-      if(sampleSizes.isEmpty) {
-        0L
-      } else {
-        ceilDiv(sampleSizes.sum, sampleSizes.length)
-      }
+      val sampleFraction = computeSampleFraction(df, dfRecordCount)
+      val sample = acquireSample(df, sampleFraction)
+      val sampleSizes: Array[ByteSize] = sample.collect().map(RowSizer.rowSize)
+      ceilDiv(sampleSizes.sum, sampleSizes.length)
     }
   }
 

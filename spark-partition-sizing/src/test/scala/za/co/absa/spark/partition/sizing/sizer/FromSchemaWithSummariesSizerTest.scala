@@ -32,4 +32,13 @@ class FromSchemaWithSummariesSizerTest extends AnyFunSuite with DummyDatasets {
     assertThrows[IllegalArgumentException](new FromSchemaWithSummariesSizer().performRowSizing(structDf))
   }
 
+  test("test non-empty input has a positive size (non-empty) sample is generated from non-empty input)") {
+    val sizer1 = new FromDataframeSampleSizer(1)
+    // need to do a few retries because sampling is randomly imprecise in count:
+    // sampling 1 out of 2 can lead to 0-sized sample!
+    (0 to 10).foreach { _ =>
+      assert(sizer1.performRowSizing(simpleDf) > 0)
+    }
+  }
+
 }

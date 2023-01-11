@@ -26,7 +26,7 @@ import scala.util.control.TailCalls.{TailRec, done, tailcall}
 class FromSchemaSizer(implicit dataTypeSizes: DataTypeSizes) extends RecordSizer {
   private val zeroByteSize: ByteSize = 0
 
-  def performRowSizing(df: DataFrame, dfRecordCount: Option[Int] = None): ByteSize = {
+  def performRowSizing(df: DataFrame, dfRecordCount: Option[Long] = None): ByteSize = {
     val schema = df.schema
     structSize(schema, 1, done(zeroByteSize)).result
   }
