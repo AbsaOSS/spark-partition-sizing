@@ -175,3 +175,7 @@ This approach has the advantage of being quicker, since taking samples is not so
     //specifying a range of values
     val repartitionedDfWithRange = df.repartitionByDesiredSize(sizer)(minPartitionSizeInBytes, maxPartitionSizeInBytes)
 ```
+
+## How to Release
+
+Please see [this file](RELEASE.md) for more details.
