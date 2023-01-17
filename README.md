@@ -1,5 +1,9 @@
 # spark-partition-sizing
 
+[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Build](https://github.com/AbsaOSS/spark-partition-sizing/workflows/Build/badge.svg)](https://github.com/AbsaOSS/spark-partition-sizing/actions)
+[![Release](https://github.com/AbsaOSS/spark-partition-sizing/actions/workflows/release.yml/badge.svg)](https://github.com/AbsaOSS/spark-partition-sizing/actions/workflows/release.yml)
+
 Library for controlling the size of partitions when writing using Spark.
 
 ## Motivation
@@ -7,31 +11,30 @@ Sometimes partitions written by Spark are quite unequal(data skew), which makes 
 `spark-partition-sizing` aims to reduce this problem by providing a number of utilities for achieving a more balanced partitioning.
 
 ## Usage
+This library is build in a Spark-specific manner, so individual Spark versions are part of library name. 
 
-[![Build](https://github.com/AbsaOSS/spark-partition-sizing/workflows/Build/badge.svg)](https://github.com/AbsaOSS/spark-partition-sizing/actions)
+|              | spark-partition-sizing-spark2.4                                                                                                                                                                                                    | spark-partition-sizing-spark3.2                                                                                                                                                                                                  | spark-partition-sizing-spark3.3                                                                                                                                                                                                  |
+|--------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| _Scala 2.11_ | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing-spark2.4_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing-spark2.4_2.11)   |                                                                                                                                                                                                                                  |                                                                                                                                                                                                                                  | 
+| _Scala 2.12_ | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing-spark2.4_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing-spark2.4_2.12)   | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing-spark3.2_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing-spark3.2_2.12) | [![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing-spark3.3_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing-spark3.3_2.12) | 
 
-sbt
+
+### SBT
 ```scala
-libraryDependencies += "za.co.absa" %% "spark-partition-sizing" % "X.Y.Z"
+libraryDependencies += "za.co.absa" %% "spark-partition-sizing-spark${sparkVersion}" % "X.Y.Z"
+```
+so, e.g. 
+```scala
+libraryDependencies += "za.co.absa" %% "spark-partition-sizing-spark2.4" % "X.Y.Z"
+libraryDependencies += "za.co.absa" %% "spark-partition-sizing-spark3.2" % "X.Y.Z"
+libraryDependencies += "za.co.absa" %% "spark-partition-sizing-spark3.3" % "X.Y.Z"
 ```
 
-### Scala 2.11 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing_2.11)
-
-Maven
+### Maven
 ```xml
 <dependency>
    <groupId>za.co.absa</groupId>
-   <artifactId>spark-partition-sizing_2.11</artifactId>
-   <version>${latest_version}</version>
-</dependency>
-```
-
-### Scala 2.12 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/za.co.absa/spark-partition-sizing_2.12)
-
-```xml
-<dependency>
-   <groupId>za.co.absa</groupId>
-   <artifactId>spark-partition-sizing_2.12</artifactId>
+   <artifactId>spark-partition-sizing-spark${sparkVersion}_${scalaVersion}</artifactId>
    <version>${latest_version}</version>
 </dependency>
 ```
