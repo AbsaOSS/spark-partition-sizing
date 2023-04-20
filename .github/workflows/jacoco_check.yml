@@ -47,7 +47,7 @@ jobs:
         id: jacoco_2_11__2_4
         uses: madrapps/jacoco-report@v1.3
         with:
-          paths: ${{ github.workspace }}//spark-partition-sizing/target/spark2-4-jvm-2-11/jacoco/report/jacoco.xml
+          paths: ${{ github.workspace }}/spark-partition-sizing/target/spark2-4-jvm-2-11/jacoco/report/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: ${{ matrix.overall }}
           min-coverage-changed-files: ${{ matrix.changed }}
@@ -67,7 +67,7 @@ jobs:
         id: jacoco_2_12__2_4
         uses: madrapps/jacoco-report@v1.3
         with:
-          paths: ${{ github.workspace }}//spark-partition-sizing/target/spark2-4-jvm-2-12/jacoco/report/jacoco.xml
+          paths: ${{ github.workspace }}/spark-partition-sizing/target/spark2-4-jvm-2-12/jacoco/report/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: ${{ matrix.overall }}
           min-coverage-changed-files: ${{ matrix.changed }}
@@ -87,7 +87,7 @@ jobs:
         id: jacoco_2_12__3_2
         uses: madrapps/jacoco-report@v1.3
         with:
-          paths: ${{ github.workspace }}//spark-partition-sizing/target/spark3-2-jvm-2-12/jacoco/report/jacoco.xml
+          paths: ${{ github.workspace }}/spark-partition-sizing/target/spark3-2-jvm-2-12/jacoco/report/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: ${{ matrix.overall }}
           min-coverage-changed-files: ${{ matrix.changed }}
@@ -107,7 +107,7 @@ jobs:
         id: jacoco_2_12__3_3
         uses: madrapps/jacoco-report@v1.3
         with:
-          paths: ${{ github.workspace }}//spark-partition-sizing/target/spark3-3-jvm-2-12/jacoco/report/jacoco.xml
+          paths: ${{ github.workspace }}/spark-partition-sizing/target/spark3-3-jvm-2-12/jacoco/report/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: ${{ matrix.overall }}
           min-coverage-changed-files: ${{ matrix.changed }}
