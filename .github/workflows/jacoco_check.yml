@@ -44,7 +44,7 @@ jobs:
       - name: Build and run tests
         run: sbt jacoco
       - name: Add coverage to PR for scala 2.11 & spark 2.4
-        id: jacoco_1
+        id: jacoco1
         uses: madrapps/jacoco-report@v1.3
         with:
           paths: ${{ github.workspace }}/spark-partition-sizing/target/spark2.4-jvm-2.11/jacoco/report/jacoco.xml
@@ -53,7 +53,6 @@ jobs:
           min-coverage-changed-files: ${{ matrix.changed }}
           title: JaCoCo code coverage report - scala ${{ matrix.scala_2_11 }} - spark ${{ matrix.spark_24 }}
           update-comment: true
-          debug-mode: true
       - name: Get the Coverage info
         run: |
           echo "Total coverage ${{ steps.jacoco1.outputs.coverage-overall }}"
