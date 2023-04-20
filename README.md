@@ -47,7 +47,7 @@ sbt clean test
 
 ### How to generate Code coverage report
 ```sbt
-sbt jacoco
+sbt ++{scala_version} jacoco
 ```
 Code coverage will be generated on path:
 ```
