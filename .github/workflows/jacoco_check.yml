@@ -27,14 +27,11 @@ jobs:
     strategy:
       matrix:
         include:
-          - scala: 2.11.12
-            scalaShort: "2.11"
-            spark: 2.4.7
-            overall: 0.0
-            changed: 80.0
-          - scala: 2.12.17
-            scalaShort: "2.12"
-            spark: 2.4.7
+          - scala_2_11: 2.11.12
+            scala_2_12: 2.12.12
+            spark_24: 2.4.7
+            spark_32: 3.2.3
+            spark_33: 3.2.1
             overall: 0.0
             changed: 80.0
     steps:
@@ -45,16 +42,76 @@ jobs:
         with:
           java-version: "adopt@1.8"
       - name: Build and run tests
-        run: sbt ++${{matrix.scala}} jacoco
-      - name: Add coverage to PR
+        run: sbt jacoco
+      - name: Add coverage to PR for scala 2.11 & spark 2.4
         id: jacoco
         uses: madrapps/jacoco-report@v1.3
         with:
-          paths: ${{ github.workspace }}/target/scala-${{ matrix.scalaShort }}/jacoco/report/jacoco.xml,
+          paths: ${{ github.workspace }}//spark-partition-sizing/target/spark2-4-jvm-2-11/jacoco/report/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: ${{ matrix.overall }}
           min-coverage-changed-files: ${{ matrix.changed }}
-          title: JaCoCo code coverage report - scala ${{ matrix.scala }} - spark ${{ matrix.spark }}
+          title: JaCoCo code coverage report - scala ${{ matrix.scala_2_11 }} - spark ${{ matrix.spark_24 }}
+          update-comment: true
+      - name: Get the Coverage info
+        run: |
+          echo "Total coverage ${{ steps.jacoco.outputs.coverage-overall }}"
+          echo "Changed Files coverage ${{ steps.jacoco.outputs.coverage-changed-files }}"
+      - name: Fail PR if changed files coverage is less than ${{ matrix.changed }}%
+        if: ${{ steps.jacoco.outputs.coverage-changed-files < 80.0 }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setFailed('Changed files coverage is less than ${{ matrix.changed }}%!')
+      - name: Add coverage to PR for scala 2.12 & spark 2.4
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.3
+        with:
+          paths: ${{ github.workspace }}//spark-partition-sizing/target/spark2-4-jvm-2-12/jacoco/report/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: ${{ matrix.overall }}
+          min-coverage-changed-files: ${{ matrix.changed }}
+          title: JaCoCo code coverage report - scala ${{ matrix.scala_2_12 }} - spark ${{ matrix.spark_24 }}
+          update-comment: true
+      - name: Get the Coverage info
+        run: |
+          echo "Total coverage ${{ steps.jacoco.outputs.coverage-overall }}"
+          echo "Changed Files coverage ${{ steps.jacoco.outputs.coverage-changed-files }}"
+      - name: Fail PR if changed files coverage is less than ${{ matrix.changed }}%
+        if: ${{ steps.jacoco.outputs.coverage-changed-files < 80.0 }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setFailed('Changed files coverage is less than ${{ matrix.changed }}%!')
+      - name: Add coverage to PR for scala 2.12 & spark 3.2
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.3
+        with:
+          paths: ${{ github.workspace }}//spark-partition-sizing/target/spark3-2-jvm-2-12/jacoco/report/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: ${{ matrix.overall }}
+          min-coverage-changed-files: ${{ matrix.changed }}
+          title: JaCoCo code coverage report - scala ${{ matrix.scala_2_12 }} - spark ${{ matrix.spark_32 }}
+          update-comment: true
+      - name: Get the Coverage info
+        run: |
+          echo "Total coverage ${{ steps.jacoco.outputs.coverage-overall }}"
+          echo "Changed Files coverage ${{ steps.jacoco.outputs.coverage-changed-files }}"
+      - name: Fail PR if changed files coverage is less than ${{ matrix.changed }}%
+        if: ${{ steps.jacoco.outputs.coverage-changed-files < 80.0 }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.setFailed('Changed files coverage is less than ${{ matrix.changed }}%!')
+      - name: Add coverage to PR for scala 2.12 & spark 3.3
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.3
+        with:
+          paths: ${{ github.workspace }}//spark-partition-sizing/target/spark3-3-jvm-2-12/jacoco/report/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: ${{ matrix.overall }}
+          min-coverage-changed-files: ${{ matrix.changed }}
+          title: JaCoCo code coverage report - scala ${{ matrix.scala_2_12 }} - spark ${{ matrix.spark_33 }}
           update-comment: true
       - name: Get the Coverage info
         run: |
