@@ -31,7 +31,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: coursier/cache-action@c5ca79321d170b8a18c288d9cadc2a6037166d0f
+      - uses: coursier/cache-action@e47d7d35a0d3a2c7f649ca5c63dfc2bbfaa002e7
 
       - name: Setup Scala
         uses: olafurpg/setup-scala@32ffa16635ff8f19cc21ea253a987f0fdf29844c
